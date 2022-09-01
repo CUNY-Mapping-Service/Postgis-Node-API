@@ -1,0 +1,10 @@
+.env
+.directory
+node_modules
+TODO.md
+.vscode
+!tilecache/
+tilecache/*
+logs/*
+.exe
+*.exe

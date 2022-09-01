@@ -1,4 +1,4 @@
-# NYS Redistricting PostGIS HTTP API
+# PostGIS-Node HTTP API
 
 Based on the Dirt-Simple PostGIS HTTP API, or `dirt`, exposes PostGIS functionality to your applications over HTTP.
 
@@ -27,6 +27,8 @@ npm install
 ### Step 2: add your configuration
 
 Add your Postgres connection information to `config/index.json.txt` and rename it `index.json`. Information on the config options can be found [here](config/README.md).
+
+Rename env.txt to .env and configure environment variables here as well.
 
 ### Step 3: fire it up!
 

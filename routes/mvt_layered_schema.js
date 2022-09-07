@@ -1,7 +1,7 @@
 const recache = require("recache")
 const fs = require("fs");
 const cacheRootFolderName = process.env.CACHE_FOLDER || 'tilecache';
-let tableNames = []
+let tableNames = {}
 const cache = recache(cacheRootFolderName, {
   persistent: true,                           // Make persistent cache
   store: true                                 // Enable file content storage
@@ -10,6 +10,9 @@ const cache = recache(cacheRootFolderName, {
 
   // cache.read(...);
 });
+
+const qc = require("node-cache");
+const queryCache = new qc();
 
 const tableNameQuery = (params, query) => {
   return `
@@ -30,7 +33,7 @@ const tableNameQuery = (params, query) => {
 const sql = (params, query) => {
   //console.log(params)
   let q = 'SELECT '
-  let tables = tableNames//params.tables.split(',');
+  let tables = tableNames[params.schema]//params.tables.split(',');
 
 
   tables.forEach((table, idx) => {
@@ -48,36 +51,6 @@ const sql = (params, query) => {
 
 
   })
-  //${table.includes('label') ? ' , distname' :''}
-  // `
-  //   WITH mvtgeom as (
-  //     SELECT
-  //       ST_AsMVTGeom (
-  //         ST_Transform(${query.geom_column}, 3857),
-  //         ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})
-  //       ) as geom
-  //       ${query.columns ? `, ${query.columns}` : ''}
-  //       ${query.id_column ? `, ${query.id_column}` : ''}
-  //     FROM
-  //       public."${params.table}",
-  //       (SELECT ST_SRID(${query.geom_column}) AS srid FROM "${params.table}" LIMIT 1) a
-  //     WHERE
-  //       ST_Intersects(
-  //         geom,
-  //         ST_Transform(
-  //           ST_TileEnvelope(${params.z}, ${params.x}, ${params.y}),
-  //           srid
-  //         )
-  //       )
-
-  //       -- Optional Filter
-  //       ${query.filter ? ` AND ${query.filter}` : ''}
-  //   )
-  //   SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, 'geom' ${
-  //   query.id_column ? `, '${query.id_column}'` : ''
-  // }) AS mvt from mvtgeom;
-  // `
-
   return q
 }
 
@@ -137,6 +110,7 @@ module.exports = function (fastify, opts, next) {
     url: '/mvt_layered_schema/:schema/:z/:x/:y',
     schema: schema,
     handler: function (request, reply) {
+      const p = request.params;
       fastify.pg.connect((err, client, release) => {
         if (err) {
           return reply.send({
@@ -145,21 +119,37 @@ module.exports = function (fastify, opts, next) {
             message: 'unable to connect to database server'
           })
         }
-        const p = request.params;
-        client.query(tableNameQuery(request.params, request.query), function onResult(
-          err,
-          result
-        ) {
-          //release()
-          if (err) {
-            reply.send(err)
-          } else { 
-            tableNames = result.rows.map(t => t.table_name);
-            fastify.pg.connect(onConnect)
-          }
+
+        const key = 'table-list-' + request.params.schema;
+
+        const cachedResp = queryCache.get(key);
+
+        if (typeof cachedResp !== 'undefined') {
+          console.log('cache:', cachedResp)
+          tableNames[request.params.schema] = cachedResp;
+          fastify.pg.connect(onConnect)
+
+        } else {
+          client.query(tableNameQuery(request.params, request.query), function onResult(
+            err,
+            result
+          ) {
+            //release()
+            if (err) {
+              reply.send(err)
+            } else {
+              tableNames[p.schema] = result.rows.map(t => t.table_name);
+              queryCache.set(key, tableNames[p.schema], 60)
+              fastify.pg.connect(onConnect)
+            }
 
 
-        })
+          })
+
+        }
+
+
+
         // fastify.pg.connect(onConnect)
 
         function onConnect(err, client, release) {
@@ -175,7 +165,7 @@ module.exports = function (fastify, opts, next) {
           const tilePathRoot = `<root>/${p.schema}-schema/${p.z}/${p.x}/${p.y}.mvt`
           const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema/${p.z}/${p.x}/${p.y}.mvt`
           const tileFolder = `${cacheRootFolderName}/${p.schema}-schema/${p.z}/${p.x}`
-  
+
           if (cache.has(tilePathRoot)) {
             console.log(`cache hit: ${tilePathRel}`)
             const mvt = cache.get(tilePathRoot).content;

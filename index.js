@@ -7,9 +7,12 @@ require('dotenv').config()
 
 // const NodeCache = ;
 
-config.swagger.basePath = config.swagger.basePath.replace('$title$',process.env.TITLE)
-config.swagger.info.title = config.swagger.info.title.replace('$title$',process.env.TITLE)
-config.swagger.info.description = config.swagger.info.description.replace('$title$',process.env.TITLE)
+config.swagger.basePath = config.swagger.basePath.replace('$title$', process.env.URL_PATH)
+config.swagger.info.title = config.swagger.info.title.replace('$title$', process.env.TITLE)
+config.swagger.info.description = config.swagger.info.description
+  .replace('$title$', process.env.TITLE)
+  .replace('$machine-db$', process.env.SERVER_DB)
+
 
 const cacheFolder = process.env.CACHE_FOLDER || 'tilecache';
 if (!fs.existsSync(cacheFolder)) {
@@ -18,22 +21,22 @@ if (!fs.existsSync(cacheFolder)) {
 
 // postgres connection
 fastify.register(require('@fastify/postgres'), {
-  connectionString: process.env.DB
+  connectionString: `${process.env.USER_PASSWORD}@${process.env.SERVER_PASSWORD}`
 })
 
 // compression - add x-protobuf
 fastify.register(
   require('@fastify/compress'), {
-    customTypes: /^text\/|\+json$|\+text$|\+xml|x-protobuf$/
-  }
+  customTypes: /^text\/|\+json$|\+text$|\+xml|x-protobuf$/
+}
 )
 
 // cache
 fastify.register(
   require('@fastify/caching'), {
-    privacy: 'private',
-    expiresIn: config.cache
-  }
+  privacy: 'private',
+  expiresIn: config.cache
+}
 )
 
 // CORS

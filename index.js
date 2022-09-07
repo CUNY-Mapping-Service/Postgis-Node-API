@@ -21,7 +21,7 @@ if (!fs.existsSync(cacheFolder)) {
 
 // postgres connection
 fastify.register(require('@fastify/postgres'), {
-  connectionString: `${process.env.USER_PASSWORD}@${process.env.SERVER_PASSWORD}`
+  connectionString: `${process.env.USER_PASSWORD}@${process.env.SERVER_DB}`
 })
 
 // compression - add x-protobuf

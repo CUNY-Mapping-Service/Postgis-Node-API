@@ -6,7 +6,7 @@ const cache = recache(cacheRootFolderName, {
   persistent: true,                           // Make persistent cache
   store: true                                 // Enable file content storage
 }, (cache) => {
-  console.log('layered-mvt Cache ready!');
+  //console.log('layered-mvt Cache ready!');
 
   // cache.read(...);
 });
@@ -125,7 +125,7 @@ module.exports = function (fastify, opts, next) {
         const cachedResp = queryCache.get(key);
 
         if (typeof cachedResp !== 'undefined') {
-          console.log('cache:', cachedResp)
+          //console.log('cache:', cachedResp)
           tableNames[request.params.schema] = cachedResp;
           fastify.pg.connect(onConnect)
 
@@ -167,12 +167,12 @@ module.exports = function (fastify, opts, next) {
           const tileFolder = `${cacheRootFolderName}/${p.schema}-schema/${p.z}/${p.x}`
 
           if (cache.has(tilePathRoot)) {
-            console.log(`cache hit: ${tilePathRel}`)
+            ////console.log(`cache hit: ${tilePathRel}`)
             const mvt = cache.get(tilePathRoot).content;
             release()
             reply.header('Content-Type', 'application/x-protobuf').send(mvt)
           } else {
-            console.log(`cache miss: ${tilePathRel}`)
+            //console.log(`cache miss: ${tilePathRel}`)
             client.query(sql(request.params, request.query), function onResult(
               err,
               result
@@ -183,7 +183,7 @@ module.exports = function (fastify, opts, next) {
               } else {
                 const mvt = result.rows[0].mvt
                 if (mvt.length === 0) {
-                  console.log('nothing here')
+                 // console.log('nothing here')
                   reply.code(204)
                 } else {
                   try {
@@ -200,7 +200,7 @@ module.exports = function (fastify, opts, next) {
                     console.error(e)
                   }
                 }
-                console.log(mvt)
+                //console.log(mvt)
                 reply.header('Content-Type', 'application/x-protobuf').send(mvt)
 
               }

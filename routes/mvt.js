@@ -114,7 +114,7 @@ module.exports = function (fastify, opts, next) {
         const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}/${p.z}/${p.x}`
 
         if (cache.has(tilePathRoot)) {
-          console.log(`cache hit: ${tilePathRel} \r\n`)
+          //console.log(`cache hit: ${tilePathRel} \r\n`)
           const mvt = cache.get(tilePathRoot).content;
           release()
           reply.header('Content-Type', 'application/x-protobuf').send(mvt)
@@ -130,11 +130,11 @@ module.exports = function (fastify, opts, next) {
               reply.send(err)
             } else {
               const mvt = result.rows[0].mvt;
-              console.log(mvt.length, '\r\n')
+              //console.log(mvt.length, '\r\n')
               if (mvt.length === 0) {
                 reply.code(204)
               } else {
-              	console.log(`saving: ${tilePathRel} \r\n`);
+              	//console.log(`saving: ${tilePathRel} \r\n`);
                 try {
                   if (!fs.existsSync(tileFolder)) {
                     fs.mkdirSync(tileFolder, { recursive: true });

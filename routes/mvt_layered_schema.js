@@ -128,6 +128,7 @@ module.exports = function (fastify, opts, next) {
           //console.log('cache:', cachedResp)
           tableNames[request.params.schema] = cachedResp;
           fastify.pg.connect(onConnect)
+          release()
 
         } else {
           client.query(tableNameQuery(request.params, request.query), function onResult(
@@ -141,6 +142,7 @@ module.exports = function (fastify, opts, next) {
               tableNames[p.schema] = result.rows.map(t => t.table_name);
               queryCache.set(key, tableNames[p.schema], 60)
               fastify.pg.connect(onConnect)
+              release()
             }
 
 

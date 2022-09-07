@@ -1,7 +1,7 @@
 const recache = require("recache")
 const fs = require("fs");
 const cacheRootFolderName = process.env.CACHE_FOLDER || 'tilecache';
-
+let tableNames = []
 const cache = recache(cacheRootFolderName, {
   persistent: true,                           // Make persistent cache
   store: true                                 // Enable file content storage
@@ -11,11 +11,26 @@ const cache = recache(cacheRootFolderName, {
   // cache.read(...);
 });
 
+const tableNameQuery = (params, query) => {
+  return `
+  SELECT
+    i.table_name
+  FROM
+    information_schema.tables i
+  WHERE
+    i.table_schema not in  ('pg_catalog', 'information_schema')
+    and i.table_schema='${params.schema}'
+    -- Optional where filter
+    
+
+  ORDER BY table_name
+  `
+}
 // route query
 const sql = (params, query) => {
   //console.log(params)
   let q = 'SELECT '
-  let tables = params.tables.split(',');
+  let tables = tableNames//params.tables.split(',');
 
 
   tables.forEach((table, idx) => {
@@ -66,6 +81,8 @@ const sql = (params, query) => {
   return q
 }
 
+
+
 // route schema
 const schema = {
   description:
@@ -76,10 +93,6 @@ const schema = {
     schema: {
       type: 'string',
       description: 'The name of the schema.'
-    },
-    tables: {
-      type: 'string',
-      description: 'The name of the tables or views.'
     },
     z: {
       type: 'integer',
@@ -121,63 +134,90 @@ const schema = {
 module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
-    url: '/mvt_layered/:schema/:tables/:z/:x/:y',
+    url: '/mvt_layered_schema/:schema/:z/:x/:y',
     schema: schema,
     handler: function (request, reply) {
-      fastify.pg.connect(onConnect)
-
-      function onConnect(err, client, release) {
-        if (err)
+      fastify.pg.connect((err, client, release) => {
+        if (err) {
           return reply.send({
             statusCode: 500,
             error: 'Internal Server Error',
             message: 'unable to connect to database server'
           })
-        const p = request.params;
-
-        const tilePathRoot = `<root>/${p.tables.replace(',', '-')}/${p.z}/${p.x}/${p.y}.mvt`
-        const tilePathRel = `${cacheRootFolderName}/${p.tables.replace(',', '-')}/${p.z}/${p.x}/${p.y}.mvt`
-        const tileFolder = `${cacheRootFolderName}/${p.tables.replace(',', '-')}/${p.z}/${p.x}`
-
-        if (cache.has(tilePathRoot)) {
-          console.log(`cache hit: ${tilePathRel}`)
-          const mvt = cache.get(tilePathRoot).content;
-            release()
-          reply.header('Content-Type', 'application/x-protobuf').send(mvt)
-        } else {
-          console.log(`cache miss: ${tilePathRel}`)
-          client.query(sql(request.params, request.query), function onResult(
-            err,
-            result
-          ) {
-            release()
-            if (err) {
-              reply.send(err)
-            } else {
-              const mvt = result.rows[0].mvt
-              if (mvt.length === 0) {
-                reply.code(204)
-              } else {
-                try {
-                  if (!fs.existsSync(tileFolder)) {
-                    fs.mkdirSync(tileFolder, { recursive: true });
-                  }
-                  //Save mvt file from rows in tilecache
-                  fs.writeFile(tilePathRel, mvt, function (err) {
-                    if (err) {
-                      return console.log(err);
-                    }
-                  });
-                } catch (e) {
-                  console.error(e)
-                }
-              }
-              reply.header('Content-Type', 'application/x-protobuf').send(mvt)
-
-            }
-          })
         }
-      }
+        const p = request.params;
+        client.query(tableNameQuery(request.params, request.query), function onResult(
+          err,
+          result
+        ) {
+          //release()
+          if (err) {
+            reply.send(err)
+          } else { 
+            tableNames = result.rows.map(t => t.table_name);
+            fastify.pg.connect(onConnect)
+          }
+
+
+        })
+        // fastify.pg.connect(onConnect)
+
+        function onConnect(err, client, release) {
+          if (err) {
+            return reply.send({
+              statusCode: 500,
+              error: 'Internal Server Error',
+              message: 'unable to connect to database server'
+            })
+          }
+          const p = request.params;
+
+          const tilePathRoot = `<root>/${p.schema}-schema/${p.z}/${p.x}/${p.y}.mvt`
+          const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema/${p.z}/${p.x}/${p.y}.mvt`
+          const tileFolder = `${cacheRootFolderName}/${p.schema}-schema/${p.z}/${p.x}`
+  
+          if (cache.has(tilePathRoot)) {
+            console.log(`cache hit: ${tilePathRel}`)
+            const mvt = cache.get(tilePathRoot).content;
+            release()
+            reply.header('Content-Type', 'application/x-protobuf').send(mvt)
+          } else {
+            console.log(`cache miss: ${tilePathRel}`)
+            client.query(sql(request.params, request.query), function onResult(
+              err,
+              result
+            ) {
+              release()
+              if (err) {
+                reply.send(err)
+              } else {
+                const mvt = result.rows[0].mvt
+                if (mvt.length === 0) {
+                  console.log('nothing here')
+                  reply.code(204)
+                } else {
+                  try {
+                    if (!fs.existsSync(tileFolder)) {
+                      fs.mkdirSync(tileFolder, { recursive: true });
+                    }
+                    //Save mvt file from rows in tilecache
+                    fs.writeFile(tilePathRel, mvt, function (err) {
+                      if (err) {
+                        return console.log(err);
+                      }
+                    });
+                  } catch (e) {
+                    console.error(e)
+                  }
+                }
+                console.log(mvt)
+                reply.header('Content-Type', 'application/x-protobuf').send(mvt)
+
+              }
+            })
+          }
+        }
+      })
     }
   })
   next()

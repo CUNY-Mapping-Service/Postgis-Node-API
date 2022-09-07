@@ -7,6 +7,7 @@ const sql = (params, query) => {
   SELECT
     i.table_name,
     i.table_type,
+    i.table_schema,
     g.f_geometry_column as geometry_column,
     g.coord_dimension,
     g.srid,

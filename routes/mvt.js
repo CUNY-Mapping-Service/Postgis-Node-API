@@ -21,7 +21,7 @@ const sql = (params, query) => {
           ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})
         ) as geom
         ${query.columns ? `, ${query.columns}` : ''}
-        ${query.id_column ? `, ${query.id_column}` : 'id'}
+        ${query.id_column ? `, ${query.id_column}` : ''}
       FROM
         ${params.table},
         (SELECT ST_SRID(${query.geom_column}) AS srid FROM ${params.table

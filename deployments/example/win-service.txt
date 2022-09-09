@@ -1,4 +1,5 @@
-HOME="C:\APIs\API-US-Redistricting"
+HOME="C:\APIs\Postgis-Node-API"
 SERVICE_NAME="US-Redistricting-API"
 SERVICE_DESCRIPTION="US Redistricting API"
 NODE_EXE_PATH="C:\Program Files\nodejs\node.exe"
+PATH_TO_DEPLOYMENT="C:\APIs\Postgis-Node-API\deployments\US"

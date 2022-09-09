@@ -32,7 +32,7 @@ goto check_Permissions
   nssm set %SERVICE_NAME% AppDirectory "%HOME%"
   
   :: replace index.js with the name of your script
-  nssm set %SERVICE_NAME% AppParameters "index.js"
+  nssm set %SERVICE_NAME% AppParameters "index.js" %PATH_TO_DEPLOYMENT%
   
   :: optionally set the out.log and error.log paths which will be used for stdouts and sterr messages
   :: better use a logging framework like winston

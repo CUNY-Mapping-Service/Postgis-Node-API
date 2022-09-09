@@ -11,3 +11,6 @@ logs/*
 !deployments
 !deployments/
 deployments/*
+!deployments/example
+!deployments/example/
+!deployments/example/*

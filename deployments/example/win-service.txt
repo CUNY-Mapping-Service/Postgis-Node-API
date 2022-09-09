@@ -1,0 +1,4 @@
+HOME="C:\APIs\API-US-Redistricting"
+SERVICE_NAME="US-Redistricting-API"
+SERVICE_DESCRIPTION="US Redistricting API"
+NODE_EXE_PATH="C:\Program Files\nodejs\node.exe"

@@ -6,6 +6,9 @@ TODO.md
 !tilecache/
 tilecache/*
 logs/*
+*.log
+error.log
+out.log
 .exe
 *.exe
 !deployments

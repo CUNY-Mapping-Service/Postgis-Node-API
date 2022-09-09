@@ -3,7 +3,11 @@ const config = require('./config')
 const fastify = require('fastify')()
 const fs = require("fs");
 
-require('dotenv').config()
+const _args = process.argv.slice(2);
+const deployPath = _args[0] || '.';
+
+
+require('dotenv').config({path:`${deployPath}.env`});
 
 // const NodeCache = ;
 
@@ -14,7 +18,7 @@ config.swagger.info.description = config.swagger.info.description
   .replace('$machine-db$', process.env.SERVER_DB)
 
 
-const cacheFolder = process.env.CACHE_FOLDER || 'tilecache';
+const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 if (!fs.existsSync(cacheFolder)) {
   fs.mkdirSync(cacheFolder, { recursive: true });
 }
@@ -59,7 +63,7 @@ fastify.register(require('@fastify/autoload'), {
 })
 
 // Launch server
-fastify.listen(+process.env.PORT || 80, config.host || 'localhost', function (err, address) {
+fastify.listen({port:+process.env.PORT || 80, host:config.host || 'localhost'}, function (err, address) {
   if (err) {
     console.log(err)
     process.exit(1)

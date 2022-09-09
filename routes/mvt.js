@@ -1,6 +1,10 @@
 const recache = require("recache")
 const fs = require("fs");
-const cacheRootFolderName = process.env.CACHE_FOLDER || 'tilecache';
+
+const _args = process.argv.slice(2);
+const deployPath = _args[0] || '.';
+
+const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
 const cache = recache(cacheRootFolderName, {
   persistent: true,                           // Make persistent cache

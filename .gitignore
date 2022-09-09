@@ -8,3 +8,6 @@ tilecache/*
 logs/*
 .exe
 *.exe
+!deployments
+!deployments/
+deployments/*

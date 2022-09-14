@@ -7,6 +7,7 @@ const deployPath = _args[0] || '.';
 const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
 let tableNames = {}
+let columnNames = {}
 const cache = recache(cacheRootFolderName, {
   persistent: true,                           // Make persistent cache
   store: true                                 // Enable file content storage
@@ -34,21 +35,42 @@ const tableNameQuery = (params, query) => {
   ORDER BY table_name
   `
 }
+
+const columnNamesQuery = (params, query) => {
+  // console.log(params)
+  return `
+  SELECT
+  i.table_name,
+  i.column_name
+  FROM
+    information_schema.columns i
+  WHERE
+    i.table_schema not in  ('pg_catalog', 'information_schema')
+    and i.table_schema='${params.schema}'
+    -- Optional where filter
+    
+
+  ORDER BY table_name
+  `
+}
+
+
 // route query
 const sql = (params, query) => {
   //console.log(params)
   let q = 'SELECT '
   let tables = tableNames[params.schema]//params.tables.split(',');
 
-  let cols = query.columns ? query.columns.filter(c => c!=='geom') : [];
+  
 
   //console.log(cols)
   tables.forEach((table, idx) => {
+    let cols =  columnNames[table].join(',')
     q += `
       (
         SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile
         FROM (
-            SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom ${query.columns ? `, ${cols}` : ''}
+            SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom, ${cols}
             FROM ${params.schema || 'public'}.${table}
         ) tile
         WHERE tile.geom IS NOT NULL 
@@ -143,15 +165,25 @@ module.exports = function (fastify, opts, next) {
             result
           ) {
             //release()
-            if (err) {
-              reply.send(err)
-            } else {
-              tableNames[p.schema] = result.rows.map(t => t.table_name);
-              queryCache.set(key, tableNames[p.schema], 60)
-              fastify.pg.connect(onConnect)
-              release()
-            }
-
+            client.query(columnNamesQuery(request.params, request.query), function onResult(
+              err,
+              _result
+            ) {
+              if (err) {
+                reply.send(err)
+              } else {
+                _result.rows.forEach((r)=>{
+                  columnNames[r.table_name] = columnNames[r.table_name] || []
+                  if(r.column_name !== 'geom'){
+                    columnNames[r.table_name].push(r.column_name)
+                  }
+                }) 
+                tableNames[p.schema] = result.rows.map(t => t.table_name);
+                queryCache.set(key, tableNames[p.schema], 60)
+                fastify.pg.connect(onConnect)
+                release()
+              }
+            })
 
           })
 
@@ -192,7 +224,7 @@ module.exports = function (fastify, opts, next) {
               } else {
                 const mvt = result.rows[0].mvt
                 if (mvt.length === 0) {
-                 // console.log('nothing here')
+                  // console.log('nothing here')
                   reply.code(204)
                 } else {
                   try {

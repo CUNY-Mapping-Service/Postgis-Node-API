@@ -4,8 +4,9 @@ const fastify = require('fastify')()
 const fs = require("fs");
 
 const _args = process.argv.slice(2);
-const deployPath = _args[0] || '.';
+const deployPath = _args[0] || '';
 
+console.log(deployPath)
 
 require('dotenv').config({path:`${deployPath}.env`});
 

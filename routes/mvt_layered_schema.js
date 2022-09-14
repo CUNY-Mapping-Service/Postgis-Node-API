@@ -40,13 +40,14 @@ const sql = (params, query) => {
   let q = 'SELECT '
   let tables = tableNames[params.schema]//params.tables.split(',');
 
+  let cols = query.columns.filter(c => c!=='geom');
 
   tables.forEach((table, idx) => {
     q += `
       (
         SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile
         FROM (
-            SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom ${query.columns ? `, ${query.columns}` : ''}
+            SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom ${query.columns ? `, ${cols}` : ''}
             FROM ${params.schema || 'public'}.${table}
         ) tile
         WHERE tile.geom IS NOT NULL 

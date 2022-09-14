@@ -40,8 +40,9 @@ const sql = (params, query) => {
   let q = 'SELECT '
   let tables = tableNames[params.schema]//params.tables.split(',');
 
-  let cols = query.columns.filter(c => c!=='geom');
+  let cols = query.columns ? query.columns.filter(c => c!=='geom') : [];
 
+  //console.log(cols)
   tables.forEach((table, idx) => {
     q += `
       (

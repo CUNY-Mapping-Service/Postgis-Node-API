@@ -253,3 +253,228 @@ FastifyError [Error]: Method 'GET' already declared for route '/v1/get_dropdown'
   code: 'FST_ERR_DUPLICATED_ROUTE',
   statusCode: 500
 }
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns.filter(c => c!=='geom');
+                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:28)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:184:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns.filter(c => c!=='geom');
+                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:28)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:184:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns.filter(c => c!=='geom');
+                           ^
+
+TypeError: Cannot read property 'filter' of undefined
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:28)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:184:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns.filter(c => c!=='geom');
+                           ^
+
+TypeError: Cannot read property 'filter' of undefined
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:28)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:184:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns.filter(c => c!=='geom');
+                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:28)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:184:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns.filter(c => c!=='geom');
+                           ^
+
+TypeError: Cannot read property 'filter' of undefined
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:28)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:184:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns.filter(c => c!=='geom');
+                           ^
+
+TypeError: Cannot read property 'filter' of undefined
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:28)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:184:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns ? query.columns.filter(c => c!=='geom') : [];
+                                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at BoundPool._pulseQueue (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:146:19)
+    at BoundPool._release (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:371:10)
+    at C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:322:12
+    at PendingItem.callback (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:138:11)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns ? query.columns.filter(c => c!=='geom') : [];
+                                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at BoundPool._pulseQueue (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:146:19)
+    at BoundPool._release (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:371:10)
+    at C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:322:12
+    at PendingItem.callback (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:138:11)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns ? query.columns.filter(c => c!=='geom') : [];
+                                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\node_modules\pg\lib\query.js:143
+          throw err
+          ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at BoundPool._pulseQueue (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:146:19)
+    at BoundPool._release (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:371:10)
+    at C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:322:12
+    at Query.onResult (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:152:15)
+    at Query.handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\query.js:139:14)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:290:19)
+    at Connection.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\node_modules\pg\lib\query.js:143
+          throw err
+          ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at BoundPool._pulseQueue (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:146:19)
+    at BoundPool._release (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:371:10)
+    at C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:322:12
+    at Query.onResult (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:152:15)
+    at Query.handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\query.js:139:14)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:290:19)
+    at Connection.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns ? query.columns.filter(c => c!=='geom') : [];
+                                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+    at Connection.emit (events.js:400:28)
+    at C:\APIs\Postgis-Node-API\node_modules\pg\lib\connection.js:114:12
+    at Parser.parse (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\parser.js:40:17)
+    at Socket.<anonymous> (C:\APIs\Postgis-Node-API\node_modules\pg-protocol\dist\index.js:11:42)
+    at Socket.emit (events.js:400:28)
+C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43
+  let cols = query.columns ? query.columns.filter(c => c!=='geom') : [];
+                                           ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at BoundPool._pulseQueue (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:146:19)
+    at BoundPool._release (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:371:10)
+    at C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:322:12
+    at PendingItem.callback (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:138:11)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at Client._connectionCallback (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:273:21)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:279:14)
+C:\APIs\Postgis-Node-API\node_modules\pg\lib\query.js:143
+          throw err
+          ^
+
+TypeError: query.columns.filter is not a function
+    at sql (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:43:44)
+    at PendingItem.onConnect [as callback] (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:185:26)
+    at BoundPool._acquireClient (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:301:21)
+    at BoundPool._pulseQueue (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:146:19)
+    at BoundPool._release (C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:371:10)
+    at C:\APIs\Postgis-Node-API\node_modules\pg-pool\index.js:322:12
+    at Query.onResult (C:\APIs\Postgis-Node-API\routes\mvt_layered_schema.js:152:15)
+    at Query.handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\query.js:139:14)
+    at Client._handleReadyForQuery (C:\APIs\Postgis-Node-API\node_modules\pg\lib\client.js:290:19)
+    at Connection.emit (events.js:400:28)

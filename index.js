@@ -4,7 +4,7 @@ const fastify = require('fastify')()
 const fs = require("fs");
 
 const _args = process.argv.slice(2);
-const deployPath = _args[0] || '';
+const deployPath = _args[0] || "./";
 
 console.log(deployPath)
 
@@ -19,7 +19,7 @@ config.swagger.info.description = config.swagger.info.description
   .replace('$machine-db$', process.env.SERVER_DB)
 
 
-const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
+const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || './tilecache';
 if (!fs.existsSync(cacheFolder)) {
   fs.mkdirSync(cacheFolder, { recursive: true });
 }

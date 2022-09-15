@@ -19,7 +19,9 @@ config.swagger.info.description = config.swagger.info.description
   .replace('$machine-db$', process.env.SERVER_DB)
 
 
-const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
+const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || `${deployPath}tilecache`;
+console.log(cacheFolder)
+
 if (!fs.existsSync(cacheFolder)) {
   fs.mkdirSync(cacheFolder, { recursive: true });
 }

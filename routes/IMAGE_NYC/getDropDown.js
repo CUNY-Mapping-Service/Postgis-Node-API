@@ -2,6 +2,8 @@
 // route query
 const qc = require("node-cache");
 const queryCache = new qc();
+let path = require('path');
+let scriptFileName = path.basename(__filename);
 
 const sql = (params, query) => {
   return `SELECT * FROM category_dropdowns`
@@ -14,7 +16,10 @@ const schema = {
   summary: 'get dropdown list'
 }
 
-// create route
+if (process.env.CUSTOM_ROUTES.split(',').includes(scriptFileName)) {
+  // create route
+  console.log('exporting '+scriptFileName)
+
 module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
@@ -39,12 +44,12 @@ module.exports = function (fastify, opts, next) {
             sql(request.params, request.query),
             function onResult(err, result) {
               release()
-             
-              let main = result.rows.filter(m => m.cattype === 'main').sort((a,b)=>+a.sortorder-+b.sortorder);
-              const sub1 = result.rows.filter(s => s.cattype === 'sub1').sort((a,b)=>+a.sortorder-+b.sortorder);
-              const sub2 = result.rows.filter(s => s.cattype === 'sub2').sort((a,b)=>+a.sortorder-+b.sortorder);
 
-              sub1.forEach((s1)=>{
+              let main = result.rows.filter(m => m.cattype === 'main').sort((a, b) => +a.sortorder - +b.sortorder);
+              const sub1 = result.rows.filter(s => s.cattype === 'sub1').sort((a, b) => +a.sortorder - +b.sortorder);
+              const sub2 = result.rows.filter(s => s.cattype === 'sub2').sort((a, b) => +a.sortorder - +b.sortorder);
+
+              sub1.forEach((s1) => {
                 s1.sub2List = sub2.filter(s => s.subgroup1 === s1.id)
               })
 
@@ -66,3 +71,6 @@ module.exports = function (fastify, opts, next) {
 }
 
 module.exports.autoPrefix = '/v1'
+}else{
+  module.exports = function (fastify, opts, next) {next()}
+}

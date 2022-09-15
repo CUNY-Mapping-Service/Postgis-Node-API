@@ -20,117 +20,7 @@ const cache = recache(cacheRootFolderName, {
 const qc = require("node-cache");
 const queryCache = new qc();
 
-const tableNameQuery = (params, query) => {
-  return `
-  SELECT
-    i.table_name
-  FROM
-    information_schema.tables i
-  WHERE
-    i.table_schema not in  ('pg_catalog', 'information_schema')
-    and i.table_schema='${params.schema}'
-    -- Optional where filter
-    
 
-  ORDER BY table_name
-  `
-}
-
-const columnNamesQuery = (params, query) => {
-  // console.log(params)
-  return `
-  SELECT
-  i.table_name,
-  i.column_name
-  FROM
-    information_schema.columns i
-  WHERE
-    i.table_schema not in  ('pg_catalog', 'information_schema')
-    and i.table_schema='${params.schema}'
-    -- Optional where filter
-    
-
-  ORDER BY table_name
-  `
-}
-
-
-// route query
-const sql = (params, query) => {
-  //console.log(params)
-  let q = 'SELECT '
-  let tables = tableNames[params.schema]//params.tables.split(',');
-
-  
-
-  //console.log(cols)
-  tables.forEach((table, idx) => {
-    let cols =  columnNames[table].join(',')
-    q += `
-      (
-        SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile
-        FROM (
-            SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom, ${cols}
-            FROM ${params.schema || 'public'}.${table}
-        ) tile
-        WHERE tile.geom IS NOT NULL 
-    )
-    ${idx < tables.length - 1 ? '||' : 'as mvt'}
-    `
-
-
-  })
-  return q
-}
-
-
-
-// route schema
-const schema = {
-  description:
-    'Return MULTIPLE tables as multi-layer Mapbox Vector Tile (MVT).',
-  tags: ['feature'],
-  summary: 'return MVT',
-  params: {
-    schema: {
-      type: 'string',
-      description: 'The name of the schema.'
-    },
-    z: {
-      type: 'integer',
-      description: 'Z value of ZXY tile.'
-    },
-    x: {
-      type: 'integer',
-      description: 'X value of ZXY tile.'
-    },
-    y: {
-      type: 'integer',
-      description: 'Y value of ZXY tile.'
-    }
-  },
-  querystring: {
-    geom_column: {
-      type: 'string',
-      description: 'Optional geometry column of the table. The default is geom.',
-      default: 'geom'
-    },
-    columns: {
-      type: 'string',
-      description:
-        'Optional columns to return with MVT. The default is no columns.'
-    },
-    id_column: {
-      type: 'string',
-      description:
-        'Optional id column name to be used with Mapbox GL Feature State. This column must be an integer a string cast as an integer.'
-    },
-    filter: {
-      type: 'string',
-      description: 'Optional filter parameters for a SQL WHERE statement.'
-    }
-  }
-}
 
 // create route
 module.exports = function (fastify, opts, next) {
@@ -154,46 +44,55 @@ module.exports = function (fastify, opts, next) {
         const cachedResp = queryCache.get(key);
 
         if (typeof cachedResp !== 'undefined') {
-          //console.log('cache:', cachedResp)
           tableNames[request.params.schema] = cachedResp;
-          fastify.pg.connect(onConnect)
+         // console.log('DO NOT need to request tables and columns')
+
+          fastify.pg.connect(makeMVTRequest)
           release()
-
         } else {
-          client.query(tableNameQuery(request.params, request.query), function onResult(
-            err,
-            result
-          ) {
-            //release()
-            client.query(columnNamesQuery(request.params, request.query), function onResult(
-              err,
-              _result
-            ) {
-              if (err) {
-                reply.send(err)
-              } else {
-                _result.rows.forEach((r)=>{
-                  columnNames[r.table_name] = columnNames[r.table_name] || []
-                  if(r.column_name !== 'geom'){
-                    columnNames[r.table_name].push(r.column_name)
-                  }
-                }) 
-                tableNames[p.schema] = result.rows.map(t => t.table_name);
-                queryCache.set(key, tableNames[p.schema], 60)
-                fastify.pg.connect(onConnect)
-                release()
-              }
-            })
-
-          })
-
+         // console.log('need to request tables and columns')
+          makeTableRequest(client,request);
         }
 
 
 
-        // fastify.pg.connect(onConnect)
+        function makeTableRequest(client,request){
+          client.query(tableNameQuery(request.params, request.query), function onResult(
+            err,
+            result
+          ) {
+            if (err) {
+              reply.send(err)
+            } else {
+              tableNames[p.schema] = result.rows.map(t => t.table_name);
+              queryCache.set(key, tableNames[p.schema], 60)
+              makeColumnRequest(client, request);
+            }
+          })
+        }
 
-        function onConnect(err, client, release) {
+        function makeColumnRequest(client, request) {
+          client.query(columnNamesQuery(request.params, request.query), function onResult(
+            err,
+            _result
+          ) {
+            if (err) {
+              reply.send(err)
+            } else {
+              _result.rows.forEach((r) => {
+                columnNames[r.table_name] = columnNames[r.table_name] || []
+                if (r.column_name !== 'geom') {
+                  columnNames[r.table_name].push(r.column_name)
+                }
+              })
+              
+              fastify.pg.connect(makeMVTRequest)
+              release()
+            }
+          })
+        }
+
+        function makeMVTRequest(err, client, release) {
           if (err) {
             return reply.send({
               statusCode: 500,
@@ -248,6 +147,7 @@ module.exports = function (fastify, opts, next) {
             })
           }
         }
+
       })
     }
   })
@@ -255,3 +155,112 @@ module.exports = function (fastify, opts, next) {
 }
 
 module.exports.autoPrefix = '/v1'
+
+const tableNameQuery = (params, query) => {
+  return `
+  SELECT
+    i.table_name
+  FROM
+    information_schema.tables i
+  WHERE
+    i.table_schema not in  ('pg_catalog', 'information_schema')
+    and i.table_schema='${params.schema}'
+    -- Optional where filter
+    
+
+  ORDER BY table_name
+  `
+}
+
+const columnNamesQuery = (params, query) => {
+  // console.log(params)
+  return `
+  SELECT
+  i.table_name,
+  i.column_name
+  FROM
+    information_schema.columns i
+  WHERE
+    i.table_schema not in  ('pg_catalog', 'information_schema')
+    and i.table_schema='${params.schema}'
+    -- Optional where filter
+    
+
+  ORDER BY table_name
+  `
+}
+
+
+// route query
+const sql = (params, query) => {
+  //console.log(params)
+  let q = 'SELECT '
+  let tables = tableNames[params.schema]//params.tables.split(',');
+
+
+
+  //console.log(cols)
+  tables.forEach((table, idx) => {
+    let cols = columnNames[table].join(',')
+    q += `
+      (
+        SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile
+        FROM (
+            SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom, ${cols}
+            FROM ${params.schema || 'public'}.${table}
+        ) tile
+        WHERE tile.geom IS NOT NULL 
+    )
+    ${idx < tables.length - 1 ? '||' : 'as mvt'}
+    `
+
+
+  })
+  return q
+}
+// route schema
+const schema = {
+  description:
+    'Return MULTIPLE tables as multi-layer Mapbox Vector Tile (MVT).',
+  tags: ['feature'],
+  summary: 'return MVT',
+  params: {
+    schema: {
+      type: 'string',
+      description: 'The name of the schema.'
+    },
+    z: {
+      type: 'integer',
+      description: 'Z value of ZXY tile.'
+    },
+    x: {
+      type: 'integer',
+      description: 'X value of ZXY tile.'
+    },
+    y: {
+      type: 'integer',
+      description: 'Y value of ZXY tile.'
+    }
+  },
+  querystring: {
+    geom_column: {
+      type: 'string',
+      description: 'Optional geometry column of the table. The default is geom.',
+      default: 'geom'
+    },
+    columns: {
+      type: 'string',
+      description:
+        'Optional columns to return with MVT. The default is no columns.'
+    },
+    id_column: {
+      type: 'string',
+      description:
+        'Optional id column name to be used with Mapbox GL Feature State. This column must be an integer a string cast as an integer.'
+    },
+    filter: {
+      type: 'string',
+      description: 'Optional filter parameters for a SQL WHERE statement.'
+    }
+  }
+}

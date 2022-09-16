@@ -142,5 +142,27 @@ set PATH_TO_DEPLOYMENT=%~dp0%folder%
 echo PATH_TO_DEPLOYMENT=%PATH_TO_DEPLOYMENT% >> win-service.txt
 
 echo.
+set /p last_action=Do you want to quit? (q) Test the new configuration? (t) or Install the service? (i):   
+call :last-act-%last_action%
+
+	:last-act-q
+		echo Done!
+		goto :eof
+
+	:last-act-t
+        echo Testing in Node
+		cd %~dp0
+        %NODE_EXE_PATH% index.js
+		goto :eof
+
+	:last-act-i
+		echo CALL install-nssm-service.bat
+		goto :eof
+
+	:last-act-end
+
+	goto :eof
+
+echo.
 echo DONE POINT IIS APPLICATION TO: %~dp0%folder%
 pause

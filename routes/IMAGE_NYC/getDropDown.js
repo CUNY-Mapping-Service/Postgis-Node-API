@@ -16,6 +16,8 @@ const schema = {
   summary: 'get dropdown list'
 }
 
+if(!process.env.CUSTOM_ROUTES) module.exports = function (fastify, opts, next) {next()}
+
 if (process.env.CUSTOM_ROUTES.split(',').includes(scriptFileName)) {
   // create route
   console.log('exporting '+scriptFileName)

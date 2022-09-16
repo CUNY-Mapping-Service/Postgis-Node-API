@@ -50,9 +50,13 @@ echo TITLE=%TITLE% >> .env
 echo.
 echo Enter the path to the API. This is the part after the host name
 echo [eg. US-Redistricting-API] (MUST match IIS path!):
-set /p url_path=
-set URL_PATH=%url_path%
-echo URL_PATH=%URL_PATH% >> .env
+set /p URL_PATH=
+if not defined URL_PATH (
+    echo URL_PATH="" >> .env
+) ELSE (
+    echo URL_PATH=%URL_PATH% >> .env
+)
+
 
 echo.
 echo Enter the postgres server/db
@@ -63,7 +67,7 @@ echo SERVER_DB=%server_db% >>.env
 
 echo.
 echo Enter user/password to postgres database
-echo [eg. application/p455w0rd]:
+echo [eg. application:p455w0rd]:
 set /p user_password=
 set USER_PASSWORD=postgres://%user_password%
 echo USER_PASSWORD=%user_password% >> .env
@@ -110,9 +114,9 @@ echo PORT=%port% >> .env
 echo.
 echo Enter comma separated filenames for custom routes (if any)
 echo [eg. getDropdowns.js, getOtherThing.js]:
-set /p custom_routes=
-set CUSTOM_ROUTES=%custom_routes%
-echo CUSTOM_ROUTES=%custom_routes% >> .env
+set custom_routes=""
+set /p CUSTOM_ROUTES= || set CUSTOM_ROUTES=%custom_routes%
+echo CUSTOM_ROUTES=%CUSTOM_ROUTES% >> .env
 
 echo All done setting up the .env file, now setting up Windows service...
 
@@ -152,7 +156,8 @@ call :last-act-%last_action%
 	:last-act-t
         echo Testing in Node
 		cd %~dp0
-        %NODE_EXE_PATH% index.js
+        cd ..
+        %NODE_EXE_PATH% index.js %~dp0%folder%
 		goto :eof
 
 	:last-act-i

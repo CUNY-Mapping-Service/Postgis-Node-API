@@ -49,11 +49,14 @@ module.exports = function (fastify, opts, next) {
       fastify.pg.connect(onConnect)
 
       function onConnect(err, client, release) {
+        if(err) console.log(err)
         if (err) return reply.send({
           "statusCode": 500,
           "error": "Internal Server Error",
           "message": "unable to connect to database server"
         })
+
+        
         const key = request.url
         const cachedResp = queryCache.get(key);
         if (typeof cachedResp !== 'undefined') {

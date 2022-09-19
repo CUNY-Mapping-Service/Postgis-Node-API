@@ -17,3 +17,4 @@ deployments/*
 !deployments/example
 !deployments/example/
 !deployments/example/*
+!deployments/*.bat

@@ -17,4 +17,4 @@ deployments/*
 !deployments/example
 !deployments/example/
 !deployments/example/*
-!deployments/install-new-deployment.bat
+!deployments/*.bat

@@ -24,10 +24,7 @@ goto check_Permissions
 
 :restartService
     echo %SERVICE_NAME%
-    sc stop %SERVICE_NAME%
-    sc start %SERVICE_NAME%
+    net stop %SERVICE_NAME% && net start %SERVICE_NAME%
     pause
-
-echo 'done'
 
 pause

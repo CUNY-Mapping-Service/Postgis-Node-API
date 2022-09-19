@@ -6277,3 +6277,17 @@ TypeError: Cannot read property 'split' of undefined
     at loadPlugin (C:\APIs\Postgis-Node-API\node_modules\@fastify\autoload\index.js:238:15)
     at C:\APIs\Postgis-Node-API\node_modules\@fastify\autoload\index.js:37:12
     at Array.map (<anonymous>)
+C:/APIs/Postgis-Node-API/deployments/IMAGE_NYC_2022/
+C:/APIs/Postgis-Node-API/deployments/IMAGE_NYC_2022/tilecache
+exporting getDropDown.js
+Server listening on http://0.0.0.0:4030
+mvt Cache ready!
+C:/APIs/Postgis-Node-API/deployments/IMAGE_NYC_2022/
+C:/APIs/Postgis-Node-API/deployments/IMAGE_NYC_2022/tilecache
+exporting getDropDown.js
+Server listening on http://0.0.0.0:4030
+mvt Cache ready!
+C:/APIs/Postgis-Node-API/deployments/US/
+C:/APIs/Postgis-Node-API/deployments/US/tilecache
+Server listening on http://0.0.0.0:3072
+mvt Cache ready!

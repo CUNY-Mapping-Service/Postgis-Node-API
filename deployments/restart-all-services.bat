@@ -2,9 +2,11 @@
 cd /D "%~dp0"
 
 for /d %%D in (*) do (
-    echo.
-    echo RESTARTING: %%~nxD
-    call %~dp0%%~nxD\restart-service.bat
+    if EXIST %~dp0%%~nxD\restart-service.bat (
+        echo.
+        echo RESTARTING: %%~nxD
+        call %~dp0%%~nxD\restart-service.bat
+    )
 )
 
 pause

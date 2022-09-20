@@ -38,6 +38,8 @@ robocopy example %folder% /E
 
 cd %folder%
 
+RENAME example_restart-service.bat restart-service.bat
+
 echo OS=%OS% >> .env
 
 echo.

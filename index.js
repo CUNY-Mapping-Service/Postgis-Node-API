@@ -12,7 +12,13 @@ require('dotenv').config({path:`${deployPath}.env`});
 
 // const NodeCache = ;
 
-config.swagger.basePath = config.swagger.basePath.replace('$title$', process.env.URL_PATH)
+if(_args[1] && _args[1]==='-test'){
+  console.log('TESTING ENVIRONMENT')
+  config.swagger.basePath = config.swagger.basePath.replace('$title$', '')
+}else{
+  config.swagger.basePath = config.swagger.basePath.replace('$title$', process.env.URL_PATH)
+}
+
 config.swagger.info.title = config.swagger.info.title.replace('$title$', process.env.TITLE)
 config.swagger.info.description = config.swagger.info.description
   .replace('$title$', process.env.TITLE)

@@ -171,7 +171,7 @@ call :last-act-%last_action%
         echo Testing in Node...
 		cd %~dp0
         cd ..
-        %NODE_EXE_PATH% index.js %~dp0%folder%
+        %NODE_EXE_PATH% index.js %~dp0%folder% -test
 		goto :eof
 
 ::	:last-act-i

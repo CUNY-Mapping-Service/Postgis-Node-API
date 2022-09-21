@@ -20,8 +20,6 @@ const cache = recache(cacheRootFolderName, {
 const qc = require("node-cache");
 const queryCache = new qc();
 
-
-
 // create route
 module.exports = function (fastify, opts, next) {
   fastify.route({
@@ -102,9 +100,9 @@ module.exports = function (fastify, opts, next) {
           }
           const p = request.params;
 
-          const tilePathRoot = `<root>/${p.schema}-schema/${p.z}/${p.x}/${p.y}.mvt`
-          const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema/${p.z}/${p.x}/${p.y}.mvt`
-          const tileFolder = `${cacheRootFolderName}/${p.schema}-schema/${p.z}/${p.x}`
+          const tilePathRoot = `<root>/${p.schema}-schema-${request.query.columns || 'all'}/${p.z}/${p.x}/${p.y}.mvt`
+          const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns || 'all'}/${p.z}/${p.x}/${p.y}.mvt`
+          const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns || 'all'}/${p.z}/${p.x}`
 
           if (cache.has(tilePathRoot)) {
             ////console.log(`cache hit: ${tilePathRel}`)
@@ -198,15 +196,17 @@ const sql = (params, query) => {
   let tables = tableNames[params.schema]//params.tables.split(',');
 
 
-
+  
   //console.log(cols)
   tables.forEach((table, idx) => {
-    let cols = columnNames[table].join(',')
+
+    let cols = query.columns.split(',').map(c=>`'${c}'`).join(',') || columnNames[table].join(',');
+    
     q += `
       (
         SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile
         FROM (
-            SELECT ST_AsMVTGeom(geom, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom, ${cols}
+            SELECT ST_AsMVTGeom(${query.geom_column || 'geom'}, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom, ${cols}
             FROM ${params.schema || 'public'}.${table}
         ) tile
         WHERE tile.geom IS NOT NULL 
@@ -251,16 +251,7 @@ const schema = {
     columns: {
       type: 'string',
       description:
-        'Optional columns to return with MVT. The default is no columns.'
-    },
-    id_column: {
-      type: 'string',
-      description:
-        'Optional id column name to be used with Mapbox GL Feature State. This column must be an integer a string cast as an integer.'
-    },
-    filter: {
-      type: 'string',
-      description: 'Optional filter parameters for a SQL WHERE statement.'
+        'Optional columns to return with MVT. The default is ALL columns except geom.'
     }
   }
 }

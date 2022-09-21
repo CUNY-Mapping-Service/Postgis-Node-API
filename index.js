@@ -34,8 +34,8 @@ if (!fs.existsSync(cacheFolder)) {
 
 // postgres connection
 fastify.register(require('@fastify/postgres'), {
-  //connectionString: `${process.env.USER_PASSWORD}@${process.env.SERVER_DB}`
-  connectionString: "postgres://application:cuny2o2!@wa14bv/us_redistricting"
+  connectionString: `${process.env.USER_PASSWORD}@${process.env.SERVER_DB}`
+  //connectionString: "postgres://application:cuny2o2!@wa14bv/us_redistricting"
 })
 
 console.log(`connecting to: ${process.env.USER_PASSWORD}@${process.env.SERVER_DB}`)

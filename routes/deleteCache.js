@@ -17,7 +17,7 @@ const os = process.env.OS || 'WIN';
 
 function isWhitelisted(_ip) {
     const whitelist = process.env.CACHE_RM_ALLOWED_IP.split(",");
-
+    console.log(whitelist)
     for (let i = 0; i < whitelist.length; i++) {
         if (whitelist[i] === _ip) {
             return true;
@@ -31,7 +31,8 @@ module.exports = function (fastify, opts, next) {
         url: url,
         schema: schema,
         handler: function (request, reply) {
-            if (!isWhitelisted(request.ip)) {
+            console.log(request.ip.split(':')[0])
+            if (!isWhitelisted(request.ip.split(':')[0])) {
                 reply
                     .code(500)
                     //.header('Content-Type', 'application/json; charset=utf-8')

@@ -43,18 +43,18 @@ module.exports = function (fastify, opts, next) {
 
         if (typeof cachedResp !== 'undefined') {
           tableNames[request.params.schema] = cachedResp;
-         // console.log('DO NOT need to request tables and columns')
+          // console.log('DO NOT need to request tables and columns')
 
           fastify.pg.connect(makeMVTRequest)
           release()
         } else {
-         // console.log('need to request tables and columns')
-          makeTableRequest(client,request);
+          // console.log('need to request tables and columns')
+          makeTableRequest(client, request);
         }
 
 
 
-        function makeTableRequest(client,request){
+        function makeTableRequest(client, request) {
           client.query(tableNameQuery(request.params, request.query), function onResult(
             err,
             result
@@ -83,7 +83,7 @@ module.exports = function (fastify, opts, next) {
                   columnNames[r.table_name].push(r.column_name)
                 }
               })
-              
+
               fastify.pg.connect(makeMVTRequest)
               release()
             }
@@ -195,13 +195,25 @@ const sql = (params, query) => {
   let q = 'SELECT '
   let tables = tableNames[params.schema]//params.tables.split(',');
 
-
-  
   //console.log(cols)
   tables.forEach((table, idx) => {
+    let existingColumns = columnNames[table];
+    let queriedColumns;
 
-    let cols = query.columns.split(',').map(c=>`'${c}'`).join(',') || columnNames[table].join(',');
-    
+    if (query.columns) {
+      queriedColumns = query.columns
+        .split(',')
+        .filter((c)=>{
+          return existingColumns.includes(c)
+        })
+        .map(c => `'${c}'`)
+        .join(',')
+    }
+    //console.log(table)
+   // console.log(queriedColumns, existingColumns)
+
+    let cols = queriedColumns || existingColumns.join(',');
+
     q += `
       (
         SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile

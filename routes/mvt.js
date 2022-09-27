@@ -136,6 +136,15 @@ module.exports = function (fastify, opts, next) {
               const mvt = result.rows[0].mvt;
               //console.log(mvt.length, '\r\n')
               if (mvt.length === 0) {
+                 if (!fs.existsSync(tileFolder)) {
+                  console.log('making empty folder')
+                    fs.mkdir(tileFolder, { recursive: true });
+                  }
+                   fs.open(tilePathRel, 'w', function (err) {
+                    if (err) {
+                      return console.log(err);
+                    }
+                  });
                 reply.code(204)
               } else {
               	//console.log(`saving: ${tilePathRel} \r\n`);

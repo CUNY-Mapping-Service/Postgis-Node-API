@@ -32,6 +32,10 @@ if (!fs.existsSync(cacheFolder)) {
   fs.mkdirSync(cacheFolder, { recursive: true });
 }
 
+if(process.env.LOG==='FALSE'){
+  console.log=()=>{}
+}
+
 // postgres connection
 fastify.register(require('@fastify/postgres'), {
   connectionString: `${process.env.USER_PASSWORD}@${process.env.SERVER_DB}`

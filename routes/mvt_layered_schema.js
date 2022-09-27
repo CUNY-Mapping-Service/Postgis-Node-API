@@ -8,11 +8,12 @@ const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilec
 
 let tableNames = {}
 let columnNames = {}
+console.log('cache watching: ',cacheRootFolderName)
 const cache = recache(cacheRootFolderName, {
   persistent: true,                           // Make persistent cache
   store: true                                 // Enable file content storage
 }, (cache) => {
-  //console.log('layered-mvt Cache ready!');
+  console.log('layered-mvt Cache ready!');
 
   // cache.read(...);
 });
@@ -43,12 +44,11 @@ module.exports = function (fastify, opts, next) {
 
         if (typeof cachedResp !== 'undefined') {
           tableNames[request.params.schema] = cachedResp;
-          // console.log('DO NOT need to request tables and columns')
-
+          console.log('DO NOT need to request tables and columns')
           fastify.pg.connect(makeMVTRequest)
           release()
         } else {
-          // console.log('need to request tables and columns')
+          console.log('need to request tables and columns')
           makeTableRequest(client, request);
         }
 
@@ -63,7 +63,8 @@ module.exports = function (fastify, opts, next) {
               reply.send(err)
             } else {
               tableNames[p.schema] = result.rows.map(t => t.table_name);
-              queryCache.set(key, tableNames[p.schema], 60)
+              console.log('made a table request')
+              queryCache.set(key, tableNames[p.schema], 300)
               makeColumnRequest(client, request);
             }
           })
@@ -77,6 +78,8 @@ module.exports = function (fastify, opts, next) {
             if (err) {
               reply.send(err)
             } else {
+            	console.log('made a column request')
+
               _result.rows.forEach((r) => {
                 columnNames[r.table_name] = columnNames[r.table_name] || []
                 if (r.column_name !== 'geom') {
@@ -100,17 +103,17 @@ module.exports = function (fastify, opts, next) {
           }
           const p = request.params;
 
-          const tilePathRoot = `<root>/${p.schema}-schema-${request.query.columns || 'all'}/${p.z}/${p.x}/${p.y}.mvt`
-          const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns || 'all'}/${p.z}/${p.x}/${p.y}.mvt`
-          const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns || 'all'}/${p.z}/${p.x}`
-
+          const tilePathRoot = `<root>/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
+          const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
+          const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}`
+          //console.log(cache.list())
           if (cache.has(tilePathRoot)) {
-            ////console.log(`cache hit: ${tilePathRel}`)
+            console.log(`schema cache hit: ${tilePathRel}`)
             const mvt = cache.get(tilePathRoot).content;
             release()
             reply.header('Content-Type', 'application/x-protobuf').send(mvt)
           } else {
-            //console.log(`cache miss: ${tilePathRel}`)
+            console.log(`schema cache miss: ${tilePathRel}`)
             client.query(sql(request.params, request.query), function onResult(
               err,
               result
@@ -121,11 +124,21 @@ module.exports = function (fastify, opts, next) {
               } else {
                 const mvt = result.rows[0].mvt
                 if (mvt.length === 0) {
-                  // console.log('nothing here')
+                   console.log('nothing here');
+                  if (!fs.existsSync(tileFolder)) {
+                  console.log('making empty folder')
+                    fs.mkdir(tileFolder, { recursive: true });
+                  }
+                  fs.open(tilePathRel, 'w', function (err) {
+                    if (err) {
+                      return console.log(err);
+                    }
+                  });
                   reply.code(204)
                 } else {
                   try {
                     if (!fs.existsSync(tileFolder)) {
+                    	console.log('making folder ',tileFolder)
                       fs.mkdirSync(tileFolder, { recursive: true });
                     }
                     //Save mvt file from rows in tilecache
@@ -133,6 +146,7 @@ module.exports = function (fastify, opts, next) {
                       if (err) {
                         return console.log(err);
                       }
+                     // cache.set(tilePathRoot)
                     });
                   } catch (e) {
                     console.error(e)

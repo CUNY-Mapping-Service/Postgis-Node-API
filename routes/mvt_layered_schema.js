@@ -127,7 +127,9 @@ module.exports = function (fastify, opts, next) {
                    console.log('nothing here');
                   if (!fs.existsSync(tileFolder)) {
                   console.log('making empty folder')
-                    fs.mkdir(tileFolder, { recursive: true });
+                    fs.mkdir(tileFolder, { recursive: true },function(err){
+                      console.log(err)
+                    });
                   }
                   fs.open(tilePathRel, 'w', function (err) {
                     if (err) {

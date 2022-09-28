@@ -25,6 +25,9 @@ set OS="WIN"
 :: Port to run server on
 set PORT=2000
 
+:: Debug log?
+set LOG=TRUE
+
 :: Custom js files to include for routes
 set CUSTOM_ROUTES=
 
@@ -94,6 +97,12 @@ echo (NOTE: If port is not free, port will be set to next highest free port)
 echo [eg. 2000]
 set /p port=
 set PORT=%port%
+
+echo.
+echo Write out logs from console.log?
+echo [eg. TRUE/FALSE]
+set /p debug=
+set LOG=%debug%
 
 setlocal ENABLEDELAYEDEXPANSION
      set /a Maxport = 65535 - PORT

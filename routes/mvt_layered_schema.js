@@ -213,20 +213,12 @@ const sql = (params, query) => {
   tables.forEach((table, idx) => {
     let existingColumns = columnNames[table];
 
-    let queriedColumns;
-    if (query.columns) {
-      queriedColumns = query.columns
-        .split(',')
-        .filter((c)=>{
-          const regex = /'/g;
-          const nekedC = c.replace(regex, "");
-          return existingColumns.includes(c) || existingColumns.includes(nekedC)
-        })
-        .join(',')
+    const regex = /'/g;
+    let matchArr = query.columns.replace(regex,"").split(',');
+    
+    let useQueryColumns = matchArr.every(r=> existingColumns.includes(r))
 
-    }
-
-    let cols = queriedColumns || existingColumns.join(',');
+    let cols = useQueryColumns ? matchArr.join(',') : existingColumns.join(',');
     //console.log(cols)
     q += `
       (

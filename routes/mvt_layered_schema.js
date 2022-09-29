@@ -220,8 +220,8 @@ const sql = (params, query) => {
 
     //let cols = useQueryColumns ? matchArr.join(',') : existingColumns.join(',');
     let cols = matchArr.join(',');
-    console.log(table)
-    console.log(useQueryColumns)
+    ///console.log(table)
+    //console.log(useQueryColumns)
     //console.log(existingColumns.join(','))
     if(useQueryColumns){
 	    q += `
@@ -233,11 +233,21 @@ const sql = (params, query) => {
 	        ) tile
 	        WHERE tile.geom IS NOT NULL 
 	    )||`
+	}else{
+		q += `
+	      (
+	        SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile
+	        FROM (
+	            SELECT ST_AsMVTGeom(${query.geom_column || 'geom'}, ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})) AS geom
+	            FROM ${params.schema || 'public'}.${table}
+	        ) tile
+	        WHERE tile.geom IS NOT NULL 
+	    )||`
 	}
 
   })
   let fixedPipeQuery = q.substring(0, q.length-3) + ')as mvt';
-  console.log(fixedPipeQuery)
+  //console.log(fixedPipeQuery)
   return fixedPipeQuery
 }
 // route schema

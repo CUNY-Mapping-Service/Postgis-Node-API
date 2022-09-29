@@ -106,7 +106,7 @@ module.exports = function (fastify, opts, next) {
           const tilePathRoot = `<root>/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
           const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
           const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}`
-          //console.log(cache.list())
+          
           if (cache.has(tilePathRoot)) {
             console.log(`schema cache hit: ${tilePathRel}`)
             const mvt = cache.get(tilePathRoot).content;
@@ -154,7 +154,6 @@ module.exports = function (fastify, opts, next) {
                     console.error(e)
                   }
                 }
-                //console.log(mvt)
                 reply.header('Content-Type', 'application/x-protobuf').send(mvt)
 
               }
@@ -207,31 +206,28 @@ const columnNamesQuery = (params, query) => {
 
 // route query
 const sql = (params, query) => {
-  //console.log(params)
+
   let q = 'SELECT '
   let tables = tableNames[params.schema]//params.tables.split(',');
 
-  //console.log(cols)
   tables.forEach((table, idx) => {
     let existingColumns = columnNames[table];
-    let queriedColumns;
 
+    let queriedColumns;
     if (query.columns) {
       queriedColumns = query.columns
         .split(',')
         .filter((c)=>{
-          return existingColumns.includes(c)
+          const regex = /'/g;
+          const nekedC = c.replace(regex, "");
+          return existingColumns.includes(c) || existingColumns.includes(nekedC)
         })
-        .map(c => `'${c}'`)
         .join(',')
+
     }
-    //console.log(table)
-   // console.log(queriedColumns, existingColumns)
 
     let cols = queriedColumns || existingColumns.join(',');
-
-    console.log(cols)
-
+    //console.log(cols)
     q += `
       (
         SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile

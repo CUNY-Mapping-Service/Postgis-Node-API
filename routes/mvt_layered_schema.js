@@ -230,6 +230,8 @@ const sql = (params, query) => {
 
     let cols = queriedColumns || existingColumns.join(',');
 
+    console.log(cols)
+
     q += `
       (
         SELECT ST_AsMVT(tile, '${table}', 4096, 'geom') AS tile

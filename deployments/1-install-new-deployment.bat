@@ -79,7 +79,7 @@ echo USER_PASSWORD=%user_password% >> .env
 
 echo.
 echo Enter folder where the tile cache will go
-echo  [eg. tilecache]:  
+echo  [eg. tilecache NO SLASHES!]:  
 set /p cache_folder=
 set CACHE_FOLDER=%cache_folder%
 echo CACHE_FOLDER=%cache_folder% >> .env
@@ -153,7 +153,7 @@ echo Enter the path to Node installation (Press enter to use default: %node_path
 set /p NODE_EXE_PATH= || SET NODE_EXE_PATH=%node_path_exe%
 echo NODE_EXE_PATH=%NODE_EXE_PATH% >> win-service.txt
 
-set PATH_TO_DEPLOYMENT=%~dp0%folder%
+set PATH_TO_DEPLOYMENT=%~dp0%folder%\\
 echo PATH_TO_DEPLOYMENT=%PATH_TO_DEPLOYMENT% >> win-service.txt
 
 echo.

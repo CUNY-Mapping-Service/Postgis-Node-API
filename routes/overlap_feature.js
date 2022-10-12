@@ -11,7 +11,7 @@ const sql = (params, query) => {
     ${params.table_to}
   
   WHERE
-    ST_Overlap(
+    ST_Overlaps(
       ${params.table_from}.${query.geom_column_from || 'geom'},
       ${params.table_to}.${query.geom_column_to || 'geom'}
     )

@@ -4,7 +4,7 @@ const queryCache = new qc();
 const sql = (params, query) => {
   return `
       SELECT   
-      ${params.table_to}.id, name, label, st_asgeojson(${params.table_to}.geom) 
+      ${params.table_to}.id, name, label, st_asgeojson(ST_Transform(${params.table_to}.geom,3857)) as geom
       from
       ${params.table_from},
       ${params.table_to}

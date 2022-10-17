@@ -2,28 +2,50 @@ const qc = require("node-cache");
 const queryCache = new qc();
 // route query
 const sql = (params, query) => {
+  let relationship = 'ST_Intersects';
+  switch(params.relation_type){
+    case 'overlaps': relationship = 'ST_Overlaps'; break; 
+    case 'intersects': relationship = 'ST_Intersects'; break; 
+    case 'crosses': relationship = 'ST_Crosses'; break; 
+    case 'contains': relationship = 'ST_Contains'; break; 
+    case'contains_properly': relationship = 'ST_ContainsProperly'; break; 
+    default: break;
+  }
   return `
-      SELECT   
-      ${params.table_to}.id, name, label, st_asgeojson(ST_Transform(${params.table_to}.geom,4326)) as geom
-      from
-      ${params.table_from},
-      ${params.table_to}
-      WHERE
-      ST_Intersects(
-        ${params.table_from}.geom,
-        ${params.table_to}.geom
-      )
-      -- Optional Filter
-      ${query.filter ? `AND ${query.filter}` : ''}
-    `
+  SELECT 
+    ${query.columns}
+  
+  FROM
+    ${params.table_from},
+    ${params.table_to}
+  
+  WHERE
+    ${relationship}(
+      ${params.table_from}.${query.geom_column_from},
+      ${params.table_to}.${query.geom_column_to}
+    )
+    -- Optional Filter
+    ${query.filter ? `AND ${query.filter}` : ''}
+
+  -- Optional sort
+  ${query.sort ? `ORDER BY ${query.sort}` : ''}
+
+  -- Optional limit
+  ${query.limit ? `LIMIT ${query.limit}` : ''}
+  `
 }
 
 // route schema
 const schema = {
-  description: 'Get districts that NTAs intersect with',
-  tags: ['IMAGE NYC'],
+  description: 'Find overlaps, intersects, crosses, contains, or contains_properly',
+  tags: ['api'],
   summary: 'transform point to new SRID',
   params: {
+    relation_type: {
+      type: 'string',
+      description: 'overlaps, intersects, crosses, contains, or contains_properly. Default is intersects',
+      default: 'geom'
+    },
     table_from: {
       type: 'string',
       description: 'Table to use as an overlay.'
@@ -44,9 +66,22 @@ const schema = {
       description: 'The geometry column of the to_table. The default is geom.',
       default: 'geom'
     },
+    columns: {
+      type: 'string',
+      description: 'Columns to return. Columns should be prefaced by the table name if the column name exists in both tables (ex: f.pid, t.prkname). The default is all columns.',
+      default: '*'
+    },
     filter: {
       type: 'string',
       description: 'Optional filter parameters for a SQL WHERE statement.'
+    },
+    sort: {
+      type: 'string',
+      description: 'Optional sort column(s).'
+    },
+    limit: {
+      type: 'integer',
+      description: 'Optional limit to the number of output features.'
     }
   }
 }
@@ -55,7 +90,7 @@ const schema = {
 module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
-    url: '/nta_intersect/:table_from/:table_to',
+    url: '/feature_relations/:relation_type/:table_from/:table_to',
     schema: schema,
     handler: function (request, reply) {
       fastify.pg.connect(onConnect)

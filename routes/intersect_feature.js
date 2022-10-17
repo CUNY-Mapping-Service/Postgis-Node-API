@@ -11,10 +11,9 @@ const sql = (params, query) => {
     ${params.table_to}
   
   WHERE
-    ST_DWithin(
+    ST_Intersects(
       ${params.table_from}.${query.geom_column_from},
-      ${params.table_to}.${query.geom_column_to},
-      ${query.distance}
+      ${params.table_to}.${query.geom_column_to}
     )
     -- Optional Filter
     ${query.filter ? `AND ${query.filter}` : ''}

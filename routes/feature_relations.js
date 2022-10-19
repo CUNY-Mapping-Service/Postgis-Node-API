@@ -25,17 +25,11 @@ const sql = (params, query) => {
   
   WHERE
     ${relationship}(
-      ${params.table_from}.${query.geom_column_from},
-      ${params.table_to}.${query.geom_column_to}
+      ST_Buffer(${params.table_from}.${query.geom_column_from},${query.buffer ? query.buffer : 0}),
+      ST_Buffer(${params.table_to}.${query.geom_column_to},${query.buffer ? query.buffer : 0})
     )
   -- Optional Filter
   ${query.filter ? `AND ${query.filter}` : ''}
-
-  -- Allow touching only?
-  ${query.noTouching ? `AND NOT ST_Touches(
-    ${params.table_from}.${query.geom_column_from},
-      ${params.table_to}.${query.geom_column_to}
-  )`: ''}
 
   -- Optional sort
   ${query.sort ? `ORDER BY ${query.sort}` : ''}

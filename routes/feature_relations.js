@@ -8,7 +8,11 @@ const sql = (params, query) => {
     case 'intersects': relationship = 'ST_Intersects'; break; 
     case 'crosses': relationship = 'ST_Crosses'; break; 
     case 'contains': relationship = 'ST_Contains'; break; 
-    case'contains_properly': relationship = 'ST_ContainsProperly'; break; 
+    case 'contains_properly': relationship = 'ST_ContainsProperly'; break; 
+    case 'within': relationship = 'ST_Within'; break; 
+    case 'covers': relationship = 'ST_Covers'; break;
+    case 'covered_by': relationship = 'ST_CoveredBy'; break;
+    case 'touches': relationship = 'ST_Touches'; break;
     default: break;
   }
   return `
@@ -24,14 +28,22 @@ const sql = (params, query) => {
       ${params.table_from}.${query.geom_column_from},
       ${params.table_to}.${query.geom_column_to}
     )
-    -- Optional Filter
-    ${query.filter ? `AND ${query.filter}` : ''}
+  -- Optional Filter
+  ${query.filter ? `AND ${query.filter}` : ''}
+
+  -- Allow touching only?
+  ${query.noTouching ? `AND NOT ST_Touches(
+    ${params.table_from}.${query.geom_column_from},
+      ${params.table_to}.${query.geom_column_to}
+  )`: ''}
 
   -- Optional sort
   ${query.sort ? `ORDER BY ${query.sort}` : ''}
 
   -- Optional limit
   ${query.limit ? `LIMIT ${query.limit}` : ''}
+
+  
   `
 }
 

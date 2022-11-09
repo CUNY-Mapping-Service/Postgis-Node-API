@@ -21,18 +21,18 @@ const sql = (params, query) => {
     WITH mvtgeom as (
       SELECT
         ST_AsMVTGeom (
-          ST_Transform(${query.geom_column || 'geom'}, 3857),
+          ST_Transform(${query.geom_column}, 3857),
           ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})
         ) as geom
         ${query.columns ? `, ${query.columns}` : ''}
         ${query.id_column ? `, ${query.id_column}` : ''}
       FROM
         ${params.table},
-        (SELECT ST_SRID(${query.geom_column || 'geom'}) AS srid FROM ${params.table
+        (SELECT ST_SRID(${query.geom_column}) AS srid FROM ${params.table
     } LIMIT 1) a
       WHERE
         ST_Intersects(
-          ${query.geom_column || 'geom'},
+          ${query.geom_column},
           ST_Transform(
             ST_TileEnvelope(${params.z}, ${params.x}, ${params.y}),
             srid

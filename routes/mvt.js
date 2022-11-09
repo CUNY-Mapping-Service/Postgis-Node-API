@@ -117,11 +117,11 @@ module.exports = function (fastify, opts, next) {
         const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}/${p.z}/${p.x}/${p.y}.mvt`
         const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}/${p.z}/${p.x}`
 
-        if (cache.has(tilePathRoot) && request.query.useCache && request.query.useCache==='false') {
+        if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
           //console.log(`cache hit: ${tilePathRel} \r\n`)
           const mvt = cache.get(tilePathRoot).content;
           release()
-          reply.header('Content-Type', 'application/x-protobuf').send(mvt)
+          reply.headers({'Content-Type': 'application/x-protobuf','cached-tile':'true'}).send(mvt)
 
         } else {
           console.log(`cache miss: ${tilePathRel} \r\n`)
@@ -165,7 +165,7 @@ module.exports = function (fastify, opts, next) {
                   console.log('\r\n')
                 }
               }
-              reply.header('Content-Type', 'application/x-protobuf').send(mvt)
+              reply.headers({'Content-Type': 'application/x-protobuf','cached-tile':'false'}).send(mvt)
             }
           })
         }

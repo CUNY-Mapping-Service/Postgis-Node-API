@@ -21,18 +21,18 @@ const sql = (params, query) => {
     WITH mvtgeom as (
       SELECT
         ST_AsMVTGeom (
-          ST_Transform(${query.geom_column}, 3857),
+          ST_Transform(${query.geom_column || 'geom'}, 3857),
           ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})
         ) as geom
         ${query.columns ? `, ${query.columns}` : ''}
         ${query.id_column ? `, ${query.id_column}` : ''}
       FROM
         ${params.table},
-        (SELECT ST_SRID(${query.geom_column}) AS srid FROM ${params.table
+        (SELECT ST_SRID(${query.geom_column || 'geom'}) AS srid FROM ${params.table
     } LIMIT 1) a
       WHERE
         ST_Intersects(
-          ${query.geom_column},
+          ${query.geom_column || 'geom'},
           ST_Transform(
             ST_TileEnvelope(${params.z}, ${params.x}, ${params.y}),
             srid
@@ -42,7 +42,7 @@ const sql = (params, query) => {
         -- Optional Filter
         ${query.filter ? ` AND ${query.filter}` : ''}
     )
-    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, 'geom' ${query.id_column ? `, '${query.id_column}'` : ''
+    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, ${query.geom_column || 'geom'} ${query.id_column ? `, '${query.id_column}'` : ''
     }) AS mvt from mvtgeom;
   `
 }
@@ -117,7 +117,7 @@ module.exports = function (fastify, opts, next) {
         const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}/${p.z}/${p.x}/${p.y}.mvt`
         const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}/${p.z}/${p.x}`
 
-        if (cache.has(tilePathRoot)) {
+        if (cache.has(tilePathRoot) && request.query.useCache && request.query.useCache==='false') {
           //console.log(`cache hit: ${tilePathRel} \r\n`)
           const mvt = cache.get(tilePathRoot).content;
           release()

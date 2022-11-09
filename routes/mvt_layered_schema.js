@@ -107,7 +107,7 @@ module.exports = function (fastify, opts, next) {
           const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
           const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}`
           
-          if (cache.has(tilePathRoot)) {
+          if (cache.has(tilePathRoot) && request.query.useCache && request.query.useCache==='false') {
             console.log(`schema cache hit: ${tilePathRel}`)
             const mvt = cache.get(tilePathRoot).content;
             release()

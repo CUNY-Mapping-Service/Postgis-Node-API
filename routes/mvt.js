@@ -42,7 +42,7 @@ const sql = (params, query) => {
         -- Optional Filter
         ${query.filter ? ` AND ${query.filter}` : ''}
     )
-    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, ${query.geom_column || 'geom'} ${query.id_column ? `, '${query.id_column}'` : ''
+    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, 'geom' ${query.id_column ? `, '${query.id_column}'` : ''
     }) AS mvt from mvtgeom;
   `
 }

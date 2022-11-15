@@ -31,6 +31,9 @@ set LOG=TRUE
 :: Custom js files to include for routes
 set CUSTOM_ROUTES=
 
+::Password to authorize pw protected commands
+set PASSWORD=
+
 ::Create the new folder and cd to it. Copy everything from example too
 echo Enter the name of the subfolder for the deployment
 echo [eg: US]:
@@ -97,6 +100,12 @@ echo (NOTE: If port is not free, port will be set to next highest free port)
 echo [eg. 2000]
 set /p port=
 set PORT=%port%
+
+echo.
+echo Enter password for password protected commands. 
+echo [eg. p455w0rd123]
+set /p pw=
+set PASSWORD=%pw% >> .env
 
 echo.
 echo Write out logs from console.log?

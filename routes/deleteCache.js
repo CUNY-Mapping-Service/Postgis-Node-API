@@ -26,6 +26,9 @@ module.exports = function (fastify, opts, next) {
                 reply
                     .code(500)
                     .send('Authorization required')
+                console.log('no pw')
+            }else{
+            	console.log('good pw')
             }
             done();
         },
@@ -43,9 +46,11 @@ module.exports = function (fastify, opts, next) {
                 reply
                     .code(200)
                     .send('Cache Deleted!')
+               console.log('success')
             } catch (e) {
+            	console.log(e)
                 reply
-                    .code(200)
+                    .code(500)
                     .header('Content-Type', 'application/json; charset=utf-8')
                     .send(e)
             }

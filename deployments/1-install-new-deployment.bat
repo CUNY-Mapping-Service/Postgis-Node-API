@@ -80,12 +80,12 @@ set /p user_password=
 set USER_PASSWORD=postgres://%user_password%
 echo USER_PASSWORD=%user_password% >> .env
 
-echo.
-echo Enter folder where the tile cache will go
-echo  [eg. tilecache NO SLASHES!]:  
-set /p cache_folder=
-set CACHE_FOLDER=%cache_folder%
-echo CACHE_FOLDER=%cache_folder% >> .env
+:: echo.
+:: echo Enter folder where the tile cache will go
+:: echo  [eg. tilecache NO SLASHES!]:  
+:: set /p cache_folder=
+:: set CACHE_FOLDER=%cache_folder%
+echo CACHE_FOLDER=/tilecache >> .env
 
 echo.
 echo Enter comma separated whitelisted IP addresses to delete the cache [eg.123.45.67.89,098.65.43.2] 

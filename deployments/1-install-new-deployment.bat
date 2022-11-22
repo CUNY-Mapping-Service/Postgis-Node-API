@@ -31,6 +31,9 @@ set LOG=TRUE
 :: Custom js files to include for routes
 set CUSTOM_ROUTES=
 
+::Password to authorize pw protected commands
+set PASSWORD=
+
 ::Create the new folder and cd to it. Copy everything from example too
 echo Enter the name of the subfolder for the deployment
 echo [eg: US]:
@@ -77,12 +80,12 @@ set /p user_password=
 set USER_PASSWORD=postgres://%user_password%
 echo USER_PASSWORD=%user_password% >> .env
 
-echo.
-echo Enter folder where the tile cache will go
-echo  [eg. tilecache]:  
-set /p cache_folder=
-set CACHE_FOLDER=%cache_folder%
-echo CACHE_FOLDER=%cache_folder% >> .env
+:: echo.
+:: echo Enter folder where the tile cache will go
+:: echo  [eg. tilecache NO SLASHES!]:  
+:: set /p cache_folder=
+:: set CACHE_FOLDER=%cache_folder%
+echo CACHE_FOLDER=/tilecache >> .env
 
 echo.
 echo Enter comma separated whitelisted IP addresses to delete the cache [eg.123.45.67.89,098.65.43.2] 
@@ -97,6 +100,12 @@ echo (NOTE: If port is not free, port will be set to next highest free port)
 echo [eg. 2000]
 set /p port=
 set PORT=%port%
+
+echo.
+echo Enter password for password protected commands. 
+echo [eg. p455w0rd123]
+set /p pw=
+set PASSWORD=%pw% >> .env
 
 echo.
 echo Write out logs from console.log?
@@ -153,7 +162,7 @@ echo Enter the path to Node installation (Press enter to use default: %node_path
 set /p NODE_EXE_PATH= || SET NODE_EXE_PATH=%node_path_exe%
 echo NODE_EXE_PATH=%NODE_EXE_PATH% >> win-service.txt
 
-set PATH_TO_DEPLOYMENT=%~dp0%folder%
+set PATH_TO_DEPLOYMENT=%~dp0%folder%\\
 echo PATH_TO_DEPLOYMENT=%PATH_TO_DEPLOYMENT% >> win-service.txt
 
 echo.

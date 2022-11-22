@@ -107,11 +107,11 @@ module.exports = function (fastify, opts, next) {
           const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
           const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}`
           
-          if (cache.has(tilePathRoot)) {
+          if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
             console.log(`schema cache hit: ${tilePathRel}`)
             const mvt = cache.get(tilePathRoot).content;
             release()
-            reply.header('Content-Type', 'application/x-protobuf').send(mvt)
+            reply.headers({'Content-Type': 'application/x-protobuf','cached-tile':'true'}).send(mvt)
           } else {
             console.log(`schema cache miss: ${tilePathRel}`)
             client.query(sql(request.params, request.query), function onResult(
@@ -154,7 +154,7 @@ module.exports = function (fastify, opts, next) {
                     console.error(e)
                   }
                 }
-                reply.header('Content-Type', 'application/x-protobuf').send(mvt)
+                reply.headers({'Content-Type': 'application/x-protobuf','cached-tile':'false'}).send(mvt)
 
               }
             })

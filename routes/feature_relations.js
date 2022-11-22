@@ -2,6 +2,19 @@ const qc = require("node-cache");
 const queryCache = new qc();
 // route query
 const sql = (params, query) => {
+  let relationship = 'ST_Intersects';
+  switch(params.relation_type){
+    case 'overlaps': relationship = 'ST_Overlaps'; break; 
+    case 'intersects': relationship = 'ST_Intersects'; break; 
+    case 'crosses': relationship = 'ST_Crosses'; break; 
+    case 'contains': relationship = 'ST_Contains'; break; 
+    case 'contains_properly': relationship = 'ST_ContainsProperly'; break; 
+    case 'within': relationship = 'ST_Within'; break; 
+    case 'covers': relationship = 'ST_Covers'; break;
+    case 'covered_by': relationship = 'ST_CoveredBy'; break;
+    case 'touches': relationship = 'ST_Touches'; break;
+    default: break;
+  }
   return `
   SELECT 
     ${query.columns}
@@ -11,27 +24,34 @@ const sql = (params, query) => {
     ${params.table_to}
   
   WHERE
-    ST_Intersects(
-      ${params.table_from}.${query.geom_column_from},
-      ${params.table_to}.${query.geom_column_to}
+    ${relationship}(
+      ST_Buffer(${params.table_from}.${query.geom_column_from},${query.buffer ? query.buffer : 0}),
+      ST_Buffer(${params.table_to}.${query.geom_column_to},${query.buffer ? query.buffer : 0})
     )
-    -- Optional Filter
-    ${query.filter ? `AND ${query.filter}` : ''}
+  -- Optional Filter
+  ${query.filter ? `AND ${query.filter}` : ''}
 
   -- Optional sort
   ${query.sort ? `ORDER BY ${query.sort}` : ''}
 
   -- Optional limit
   ${query.limit ? `LIMIT ${query.limit}` : ''}
+
+  
   `
 }
 
 // route schema
 const schema = {
-  description: 'Transform a point to a different coordinate system.',
+  description: 'Find overlaps, intersects, crosses, contains, or contains_properly',
   tags: ['api'],
   summary: 'transform point to new SRID',
   params: {
+    relation_type: {
+      type: 'string',
+      description: 'overlaps, intersects, crosses, contains, or contains_properly. Default is intersects',
+      default: 'geom'
+    },
     table_from: {
       type: 'string',
       description: 'Table to use as an overlay.'
@@ -61,11 +81,6 @@ const schema = {
       type: 'string',
       description: 'Optional filter parameters for a SQL WHERE statement.'
     },
-    distance: {
-      type: 'integer',
-      description: 'Buffer the overlay feature(s) by units of the geometry column.',
-      default: 0
-    },
     sort: {
       type: 'string',
       description: 'Optional sort column(s).'
@@ -81,7 +96,7 @@ const schema = {
 module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
-    url: '/intersect_feature/:table_from/:table_to',
+    url: '/feature_relations/:relation_type/:table_from/:table_to',
     schema: schema,
     handler: function (request, reply) {
       fastify.pg.connect(onConnect)

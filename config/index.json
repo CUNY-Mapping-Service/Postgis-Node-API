@@ -12,19 +12,30 @@
       "description": "The $title$ API based on Dirt-Simple PostGIS HTTP API is an easy way to expose geospatial functionality to your applications. It takes simple requests over HTTP and returns JSON, JSONP, or protobuf (Mapbox Vector Tile) to the requester. Although the focus of the project has generally been on exposing PostGIS functionality to web apps, you can use the framework to make an API to any database. <h3>machine/db:</h3><b>$machine-db$</b>",
       "version": "3"
     },
+    "securityDefinitions": {
+      "apiKey": {
+        "type": "apiKey",
+        "name": "X-API-KEY",
+        "in": "header"
+      }
+    },
     "schemes": [
       "http",
       "https"
     ],
-    "tags": [{
-      "name": "api",
-      "description": "code related end-points"
-    }, {
-      "name": "feature",
-      "description": "features in common formats for direct mapping."
-    }, {
-      "name": "meta",
-      "description": "meta information for tables and views."
-    }]
+    "tags": [
+      {
+        "name": "api",
+        "description": "code related end-points"
+      },
+      {
+        "name": "feature",
+        "description": "features in common formats for direct mapping."
+      },
+      {
+        "name": "meta",
+        "description": "meta information for tables and views."
+      }
+    ]
   }
 }

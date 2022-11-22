@@ -6,7 +6,7 @@ const fs = require("fs");
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '';
 
-console.log(deployPath)
+console.log('deploy folder: ',deployPath)
 
 require('dotenv').config({path:`${deployPath}.env`});
 
@@ -26,9 +26,10 @@ config.swagger.info.description = config.swagger.info.description
 
 
 const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || `${deployPath}tilecache`;
-console.log(cacheFolder)
+console.log('folder set to: ',cacheFolder)
 
 if (!fs.existsSync(cacheFolder)) {
+  console.log('creating folder: ',cacheFolder)
   fs.mkdirSync(cacheFolder, { recursive: true });
 }
 

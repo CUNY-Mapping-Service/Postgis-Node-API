@@ -5,7 +5,7 @@ const _args = process.argv.slice(2);
 const deployPath = _args[0] || '.';
 
 const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
-
+console.log('cacheRootFolderName: ',cacheRootFolderName)
 let tableNames = {}
 let columnNames = {}
 console.log('cache watching: ',cacheRootFolderName)

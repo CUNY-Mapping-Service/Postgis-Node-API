@@ -208,7 +208,8 @@ const columnNamesQuery = (params, query) => {
 const sql = (params, query) => {
 
   let q = 'SELECT '
-  let tables = tableNames[params.schema]//params.tables.split(',');
+  let suffix = params.table_suffix || '';
+  let tables = tableNames[params.schema].filter(t=>t.includes(suffix));//params.tables.split(',');
 
   tables.forEach((table, idx) => {
     let existingColumns = columnNames[table];

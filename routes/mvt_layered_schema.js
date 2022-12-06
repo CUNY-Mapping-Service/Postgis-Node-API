@@ -208,7 +208,7 @@ const columnNamesQuery = (params, query) => {
 const sql = (params, query) => {
 
   let q = 'SELECT '
-  let suffix = params.table_suffix || '';
+  let suffix = query.table_suffix || '';
   let tables = tableNames[params.schema].filter(t=>t.includes(suffix));//params.tables.split(',');
 
   tables.forEach((table, idx) => {

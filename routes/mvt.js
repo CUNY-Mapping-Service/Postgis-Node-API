@@ -28,8 +28,7 @@ const sql = (params, query) => {
         ${query.id_column ? `, ${query.id_column}` : ''}
       FROM
         ${params.table},
-        (SELECT ST_SRID(${query.geom_column}) AS srid FROM ${params.table
-    } LIMIT 1) a
+        (SELECT ST_SRID(${query.geom_column}) AS srid FROM ${params.table} WHERE ${query.geom_column} IS NOT NULL LIMIT 1) a
       WHERE
         ST_Intersects(
           ${query.geom_column},
@@ -42,8 +41,9 @@ const sql = (params, query) => {
         -- Optional Filter
         ${query.filter ? ` AND ${query.filter}` : ''}
     )
-    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, 'geom' ${query.id_column ? `, '${query.id_column}'` : ''
-    }) AS mvt from mvtgeom;
+    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, 'geom' ${
+    query.id_column ? `, '${query.id_column}'` : ''
+  }) AS mvt from mvtgeom;
   `
 }
 
@@ -125,6 +125,7 @@ module.exports = function (fastify, opts, next) {
 
         } else {
           console.log(`cache miss: ${tilePathRel} \r\n`)
+           console.log(sql(request.params, request.query))
           client.query(sql(request.params, request.query), function onResult(
             err,
             result

@@ -3,8 +3,9 @@ const queryCache = new qc();
 // route query
 const sql = (params, query) => {
   const [x, y, srid] = params.point.match(/^((-?\d+\.?\d+)(,-?\d+\.?\d+)(,[0-9]{4}))/)[0].split(',')
+  let asGeojson = query.asGeojson === 'true';
 
-  return `
+  let selectStatement =  `
   SELECT 
     ${query.columns}
   
@@ -32,6 +33,14 @@ const sql = (params, query) => {
   -- Optional limit
   ${query.limit ? `LIMIT ${query.limit}` : ''}
   `
+
+  if(asGeojson){
+  	selectStatement = `SELECT
+      ST_AsGeoJSON(subq.*, '', 6) AS geojson
+    FROM (` + selectStatement + ` ) as subq`
+  }
+
+  return selectStatement
 }
 
 // route schema
@@ -77,6 +86,10 @@ const schema = {
     limit: {
       type: 'integer',
       description: 'Optional limit to the number of output features.'
+    },
+    asGeojson: {
+      type: 'string',
+      description: 'Set to true to return geojson'
     }
   }
 }

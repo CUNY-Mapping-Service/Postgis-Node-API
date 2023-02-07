@@ -17,11 +17,19 @@ const cache = recache(cacheRootFolderName, {
 
 // route query
 const sql = (params, query) => {
+
+let simplifyStatement; 
+let simplifyMultiplier = query.simplifyByZoom ? +params.z : 1;
+
+if(query.simplify && query.simplify > 0){
+	simplifyStatement = `ST_Simplify(ST_Transform(${query.geom_column}, 3857),${+query.simplify*+simplifyMultiplier})`
+}
+
   return `
     WITH mvtgeom as (
       SELECT
         ST_AsMVTGeom (
-          ST_Transform(${query.geom_column}, 3857),
+        	${simplifyStatement || `ST_Transform(${query.geom_column}, 3857)`},
           ST_TileEnvelope(${params.z}, ${params.x}, ${params.y})
         ) as geom
         ${query.columns ? `, ${query.columns}` : ''}
@@ -90,6 +98,18 @@ const schema = {
     filter: {
       type: 'string',
       description: 'Optional filter parameters for a SQL WHERE statement.'
+    },
+    simplify: {
+      type: 'string',
+      description: 'Simplify threshold using ST_Simplify'
+    },
+    simplifyByZoom: {
+      type: 'string',
+      description: 'Should the threshold be multiplied by zoom level'
+    },
+    useCache: {
+      type: 'string',
+      description: 'Should the cache be used'
     }
   }
 }

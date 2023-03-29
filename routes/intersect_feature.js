@@ -94,6 +94,7 @@ module.exports = function (fastify, opts, next) {
         })
         const key = request.url
         const cachedResp = queryCache.get(key);
+        
         if (typeof cachedResp !== 'undefined') {
           release();
           reply.send(cachedResp);

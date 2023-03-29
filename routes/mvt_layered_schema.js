@@ -103,9 +103,20 @@ module.exports = function (fastify, opts, next) {
           }
           const p = request.params;
 
-          const tilePathRoot = `<root>/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
-          const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}/${p.y}.mvt`
-          const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}/${p.z}/${p.x}`
+          let extraCacheString = '';
+          let extraCacheParams =  process.env.EXTRA_CACHE_PARAMS ? process.env.EXTRA_CACHE_PARAMS.split(',') : [];
+
+          for(let cp = 0; cp< extraCacheParams.length;cp++){
+            let val = extraCacheParams[cp];
+            if(request.query[val]){
+                extraCacheString+=request.query[val]
+            }
+          }
+          console.log(extraCacheString)
+
+          const tilePathRoot = `<root>/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}/${p.y}.mvt`
+          const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}/${p.y}.mvt`
+          const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}`
           
           if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
             console.log(`schema cache hit: ${tilePathRel}`)

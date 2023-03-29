@@ -36,7 +36,7 @@ const sql = (params, query) => {
 
   if(asGeojson){
   	selectStatement = `SELECT
-      ST_AsGeoJSON(subq.*, '', 6) AS geojson
+      ST_AsGeoJSON(subq.*, '', 2) AS geojson
     FROM (` + selectStatement + ` ) as subq`
   }
 

@@ -34,6 +34,9 @@ set CUSTOM_ROUTES=
 ::Password to authorize pw protected commands
 set PASSWORD=
 
+::Extra caching strings
+set EXTRA_CACHE_PARAMS=
+
 ::Create the new folder and cd to it. Copy everything from example too
 echo Enter the name of the subfolder for the deployment
 echo [eg: US]:
@@ -79,6 +82,13 @@ echo [eg. application:p455w0rd]:
 set /p user_password=
 set USER_PASSWORD=postgres://%user_password%
 echo USER_PASSWORD=%user_password% >> .env
+
+echo.
+echo Enter any additional params used for tagging caches
+echo [eg. tag]:
+set /p extraParams
+set EXTRA_CACHE_PARAMS=%extraParams%
+echo EXTRA_CACHE_PARAMS=%extraParams% >> .env
 
 :: echo.
 :: echo Enter folder where the tile cache will go

@@ -33,19 +33,28 @@ module.exports = function (fastify, opts, next) {
             done();
         },
         handler: function (request, reply) {
+            const cacheFolder =`${process.argv.slice(2)[0]}` || '.';
             try {
                 switch (os) {
                     case 'UNIX':
                         cp.exec("find . -name '*.mvt' -exec rm -r {} \\");
                         break;
                     case 'WIN': default:
-                        cp.exec("del /s /q *.mvt");
+                        cp.exec(`del /s /f ${cacheFolder}*.mvt`,(error, stdout, stderr) => {
+                          if (error) {
+                             reply
+                                .code(500)
+                                .send(error)
+                            return;
+                          }
+                           reply
+                    .code(200)
+                    .send(stdout)
+                      })
                         break;
                 }
 
-                reply
-                    .code(200)
-                    .send('Cache Deleted!')
+               
                console.log('success')
             } catch (e) {
             	console.log(e)

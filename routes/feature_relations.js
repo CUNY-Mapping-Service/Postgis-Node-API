@@ -109,6 +109,7 @@ module.exports = function (fastify, opts, next) {
         })
         const key = request.url
         const cachedResp = queryCache.get(key);
+        console.log( sql(request.params, request.query))
         if (typeof cachedResp !== 'undefined') {
           release();
           reply.send(cachedResp);

@@ -132,10 +132,11 @@ module.exports = function (fastify, opts, next) {
           })
 
         const p = request.params;
+        const q = request.query;
         const geom_column = request.query.geom_column
-        const tilePathRoot = `<root>/${p.table}-${geom_column}/${p.z}/${p.x}/${p.y}.mvt`
-        const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}/${p.z}/${p.x}/${p.y}.mvt`
-        const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}/${p.z}/${p.x}`
+        const tilePathRoot = `<root>/${p.table}-${Object.values(q).join('-')}/${p.z}/${p.x}/${p.y}.mvt`
+        const tilePathRel = `${cacheRootFolderName}/${p.table}-${Object.values(q).join('-')}/${p.z}/${p.x}/${p.y}.mvt`
+        const tileFolder = `${cacheRootFolderName}/${p.table}-${Object.values(q).join('-')}/${p.z}/${p.x}`
 
         if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
           //console.log(`cache hit: ${tilePathRel} \r\n`)

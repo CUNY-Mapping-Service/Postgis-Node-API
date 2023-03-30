@@ -7,7 +7,8 @@ const sql = (params, query) => {
 
   let selectStatement =  `
   SELECT 
-    ${query.columns}
+    ST_Transform(${query.geom_column}, 4326) as geom
+        ${query.columns ? `, ${query.columns}` : ''}
   
   FROM
     ${params.table}
@@ -36,7 +37,7 @@ const sql = (params, query) => {
 
   if(asGeojson){
   	selectStatement = `SELECT
-      ST_AsGeoJSON(subq.*, '', 6) AS geojson
+      ST_AsGeoJSON(subq.*, '', 4) AS geojson
     FROM (` + selectStatement + ` ) as subq`
   }
 

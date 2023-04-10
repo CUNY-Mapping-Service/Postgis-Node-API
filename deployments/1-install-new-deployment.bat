@@ -4,6 +4,9 @@ cd /D "%~dp0"
 :: Title as it will show up
 set TITLE=
 
+:: Set public host (for tilejson)
+set PUBLIC_HOST="dev.urbanresearchmaps.org"
+
 :: empty for local development, match IIS path when deployed
 set URL_PATH=
 
@@ -59,6 +62,13 @@ set TITLE=%title%
 echo TITLE=%TITLE% >> .env
 
 echo.
+echo Enter the PUBLIC host of the app. NOTE: Most apis are set up with local proxy so it will likely be dev.urbanresearchmaps.org or urbanresearchmaps.org
+echo [eg: dev.urbanresearchmaps.org]:
+set /p public_host=  
+set PUBLIC_HOST=%public_host%
+echo PUBLIC_HOST=%public_host% >> .env
+
+echo.
 echo Enter the path to the API. This is the part after the host name
 echo [eg. US-Redistricting-API] (MUST match IIS path!):
 set /p URL_PATH=
@@ -84,7 +94,7 @@ set USER_PASSWORD=postgres://%user_password%
 echo USER_PASSWORD=%user_password% >> .env
 
 echo.
-echo Enter any additional params used for tagging caches
+echo Enter any additional params used for tagging caches. Used only in mvt_layered_schema which should probably be replaced by tilejson anyway.
 echo [eg. tag]:
 set /p extraParams
 set EXTRA_CACHE_PARAMS=%extraParams%

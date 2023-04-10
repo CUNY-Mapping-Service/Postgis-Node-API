@@ -1,0 +1,21 @@
+{
+    "tilejson": "3.0.0",
+    "name": "tileJON",
+    "description": "Data from ",
+    "version": "1.0.0",
+    "attribution": "Center for Urban Research, CUNY Graduate Center",
+    "scheme": "xyz",
+    "tiles": [
+        "https://dev.urbanresearchmaps.org/mvt/public.test_table/{z}/{x}/{y}.mvt?geom_column=geom&columns=test_col"
+    ],
+    "minzoom": 0,
+    "maxzoom": 18,
+    "bounds": [
+        -180,
+        -85,
+        180,
+        85
+    ],
+    "fillzoom": 6,
+    "vector_layers": []
+}

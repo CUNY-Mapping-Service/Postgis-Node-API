@@ -40,18 +40,18 @@ module.exports = function (fastify, opts, next) {
 
 
     fastify.route({
-        method: 'POST',
+        method: 'GET',
         url: url,
         schema: schema,
         preHandler: (request, reply, done) => {
-            // if(request.headers['x-api-key']!==process.env.PASSWORD){
-            //     reply
-            //         .code(500)
-            //         .send('Authorization required')
-            //     console.log('no pw')
-            // }else{
-            // 	console.log('good pw')
-            // }
+            if(request.headers['x-api-key']!==process.env.PASSWORD){
+                reply
+                    .code(500)
+                    .send('Authorization required')
+                console.log('no pw')
+            }else{
+            	console.log('good pw')
+            }
             done();
         },
         handler: function (request, reply) {
@@ -78,11 +78,20 @@ module.exports = function (fastify, opts, next) {
                             release()
 
                             if (result && typeof result !== 'undefined' && result.rows) {
+                                //Empty tile array
                                 _json.tiles.length = 0;
-                                result.rows.forEach(row => {
+
+                                //Filter for geom tables only (Could also do this postgres but it's not)
+                                const geomRows = result.rows.filter(r=>r.columns.includes('geom' || r.columns.includes('geom_pt')));
+
+                                geomRows.forEach(row => {
                                     const cols = row.columns.filter(c => c !== 'geom').join(',');
                                     const tileURL = `https://${process.env.PUBLIC_HOST}${process.env.URL_PATH}/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}.mvt?geom_column=geom&columns=${cols}`;
-                                    _json.tiles.push(tileURL)
+                                    _json.tiles.push(tileURL);
+                                    //Include separate point geom tables
+                                    if(cols.inclues('geom_pt')){
+                                        _json.tiles.push(tileURL.replace('geom_column=geom','geom_column=geom_pt'));
+                                    }
                                 });
                             }
 

@@ -34,22 +34,30 @@ module.exports = function (fastify, opts, next) {
         },
         handler: function (request, reply) {
             const cacheFolder =`${process.argv.slice(2)[0]}` || '.';
+
+            console.log(cacheFolder)
             try {
                 switch (os) {
                     case 'UNIX':
                         cp.exec("find . -name '*.mvt' -exec rm -r {} \\");
                         break;
                     case 'WIN': default:
-                        cp.exec(`del /s /f ${cacheFolder}*.mvt`,(error, stdout, stderr) => {
+                        cp.exec(`del /s /f ${cacheFolder.replace(/\//g, '\\')}*.mvt`,(error, stdout, stderr) => {
                           if (error) {
                              reply
                                 .code(500)
                                 .send(error)
                             return;
                           }
+                          if(stderr){
+                          	reply
+                                .code(500)
+                                .send(stderr)
+                            return;
+                          }
                            reply
-                    .code(200)
-                    .send(stdout)
+		                    .code(200)
+		                    .send('success')
                       })
                         break;
                 }

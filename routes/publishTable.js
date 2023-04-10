@@ -2,18 +2,13 @@ const _args = process.argv.slice(2);
 const deployPath = _args[0] || '.';
 const fs = require("fs");
 const config = require('../config')
-const url = `/publish-table`;
+const url = `/tilejson`;
 const os = process.env.OS || 'WIN';
 
 const schema = {
-    description: 'Publish geometry table',
+    description: 'Get tilejson with all tables and views that have geom column',
     tags: ['meta'],
-    summary: 'Publish table by adding the tilejson file',
-    security: [
-        {
-            "apiKey": []
-        }
-    ]
+    summary: 'Get tilejson with all tables and views that have geom column'
 }
 
 const sql = () => {
@@ -43,17 +38,17 @@ module.exports = function (fastify, opts, next) {
         method: 'GET',
         url: url,
         schema: schema,
-        preHandler: (request, reply, done) => {
-            if(request.headers['x-api-key']!==process.env.PASSWORD){
-                reply
-                    .code(500)
-                    .send('Authorization required')
-                console.log('no pw')
-            }else{
-            	console.log('good pw')
-            }
-            done();
-        },
+        // preHandler: (request, reply, done) => {
+        //     if(request.headers['x-api-key']!==process.env.PASSWORD){
+        //         reply
+        //             .code(500)
+        //             .send('Authorization required')
+        //         console.log('no pw')
+        //     }else{
+        //     	console.log('good pw')
+        //     }
+        //     done();
+        // },
         handler: function (request, reply) {
             const cacheFolder = `${process.argv.slice(2)[0]}` || '.';
 
@@ -86,12 +81,13 @@ module.exports = function (fastify, opts, next) {
 
                                 geomRows.forEach(row => {
                                     const cols = row.columns.filter(c => c !== 'geom').join(',');
-                                    const tileURL = `https://${process.env.PUBLIC_HOST}${process.env.URL_PATH}/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}.mvt?geom_column=geom&columns=${cols}`;
+                                    const tileURL = `https://${process.env.PUBLIC_HOST}/${process.env.URL_PATH}v1/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}?geom_column=geom&columns=${cols}`;
                                     _json.tiles.push(tileURL);
+                                     _json.vector_layers.push(`${row.schema[0]}.${row.table_name}`)
                                     //Include separate point geom tables
-                                    if(cols.inclues('geom_pt')){
-                                        _json.tiles.push(tileURL.replace('geom_column=geom','geom_column=geom_pt'));
-                                    }
+                                    // if(cols.includes('geom_pt')){
+                                    //     _json.tiles.push(tileURL.replace('geom_column=geom','geom_column=geom_pt'));
+                                    // }
                                 });
                             }
 

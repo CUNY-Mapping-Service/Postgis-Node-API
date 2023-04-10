@@ -75,15 +75,25 @@ module.exports = function (fastify, opts, next) {
                             if (result && typeof result !== 'undefined' && result.rows) {
                                 //Empty tile array
                                 _json.tiles.length = 0;
-
+                                _json.vector_layers.length=0;
                                 //Filter for geom tables only (Could also do this postgres but it's not)
                                 const geomRows = result.rows.filter(r=>r.columns.includes('geom' || r.columns.includes('geom_pt')));
 
                                 geomRows.forEach(row => {
                                     const cols = row.columns.filter(c => c !== 'geom').join(',');
-                                    const tileURL = `https://${process.env.PUBLIC_HOST}/${process.env.URL_PATH}v1/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}?geom_column=geom&columns=${cols}`;
+                                    const tileURL = `https://${process.env.PUBLIC_HOST}/${process.env.URL_PATH}v1/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}?geom_column=geom&columns=${cols}&useCache=false`;
                                     _json.tiles.push(tileURL);
-                                     _json.vector_layers.push(`${row.schema[0]}.${row.table_name}`)
+
+                                    let layer = {};
+                                    layer.id=`${row.schema[0]}.${row.table_name}`;
+
+                                    layer.fields={};
+                                    row.columns.forEach(col=>{
+                                    	layer.fields[col] = col;
+                                    });
+
+							        _json.vector_layers.push(layer)
+
                                     //Include separate point geom tables
                                     // if(cols.includes('geom_pt')){
                                     //     _json.tiles.push(tileURL.replace('geom_column=geom','geom_column=geom_pt'));

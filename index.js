@@ -1,7 +1,7 @@
 const path = require('path')
 const config = require('./config')
 const fastify = require('fastify')()
-const fs = require("fs");
+const fs = require("fs-extra");
 
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '';
@@ -71,8 +71,10 @@ fastify.register(require('@fastify/swagger'), {
 
 // static documentation path
 fastify.register(require('@fastify/static'), {
-  root: path.join(__dirname, 'documentation')
-})
+  root: [path.join(__dirname, 'documentation')]
+});
+
+
 
 // routes
 fastify.register(require('@fastify/autoload'), {

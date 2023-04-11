@@ -1,5 +1,5 @@
 const recache = require("recache")
-const fs = require("fs");
+const fs = require("fs-extra");
 
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '.';

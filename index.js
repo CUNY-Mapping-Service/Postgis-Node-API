@@ -71,7 +71,7 @@ fastify.register(require('@fastify/swagger'), {
 
 // static documentation path
 fastify.register(require('@fastify/static'), {
-  root: [path.join(__dirname, 'documentation')]
+  root: path.join(__dirname, 'documentation')
 });
 
 

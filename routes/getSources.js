@@ -65,7 +65,7 @@ module.exports = function (fastify, opts, next) {
                 try {
                     const tilejson = fs.readFileSync(`${cacheFolder}/tile.json`, 'utf8');
                     // parse JSON string to JSON object
-                    const _json = {};
+                    let _json = {urls:[]};
 
                     client.query(
                         sql(),
@@ -74,11 +74,11 @@ module.exports = function (fastify, opts, next) {
 
                             if (result && typeof result !== 'undefined' && result.rows) {
 
-                                _json.urls.length = 0;
-
+                               
 
                                 //Filter for geom tables only (Could also do this postgres but it's not)
                                 const geomRows = result.rows.filter(r=>r.columns.includes('geom' || r.columns.includes('geom_pt')));
+                                console.log(geomRows)
 
                                 geomRows.forEach(row => {
                                     const cols = row.columns.filter(c => c !== 'geom').join(',');
@@ -101,7 +101,7 @@ module.exports = function (fastify, opts, next) {
                         }
                     )
 
-                    reply.code(200).send(_json)
+                  //  reply.code(200).send(_json)
 
                 } catch (err) {
                     console.log(`Error reading file from disk: ${err}`)

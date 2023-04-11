@@ -1,4 +1,4 @@
-const recache = require("recache")
+//const recache = require("recache")
 const fs = require("fs-extra");
 
 const _args = process.argv.slice(2);
@@ -9,15 +9,15 @@ console.log('cacheRootFolderName: ',cacheRootFolderName)
 let tableNames = {}
 let columnNames = {}
 console.log('cache watching: ',cacheRootFolderName)
-const cache = recache(cacheRootFolderName, {
-  persistent: true,                           // Make persistent cache
-  store: true                                 // Enable file content storage
-}, (cache) => {
-  console.log('layered-mvt Cache ready!');
+// const cache = recache(cacheRootFolderName, {
+//   persistent: true,                           // Make persistent cache
+//   store: true                                 // Enable file content storage
+// }, (cache) => {
+//   console.log('layered-mvt Cache ready!');
 
-  // cache.read(...);
-});
-
+//   // cache.read(...);
+// });
+const cache = require('../cache');
 const qc = require("node-cache");
 const queryCache = new qc();
 

@@ -1,5 +1,6 @@
 //const cp = require("child_process");
-
+//const recache = require("recache")
+const cache = require('../cache');
 const schema = {
     description: 'Delete Cache',
     tags: ['meta'],
@@ -13,7 +14,7 @@ const schema = {
 
 const url = `/delete-cache`;
 const os = process.env.OS || 'WIN';
-
+const fs = require('fs')
 module.exports = function (fastify, opts, next) {
 
 
@@ -35,20 +36,23 @@ module.exports = function (fastify, opts, next) {
         handler: function (request, reply) {
             const cacheFolder = `${process.argv.slice(2)[0]}` || '.';
 
-            console.log(cacheFolder)
+          //  console.log(cacheFolder)
 
-
-            require('fs-extra').emptyDir(cacheFolder)
-                .then(() => {
-                    reply
+           const pathToEmpty = `${cacheFolder}/${process.env.CACHE_FOLDER || 'tilecache'}`;
+           cache.destroy();
+           fs.rmSync(pathToEmpty, { recursive: true, force: true });
+           //cache.stop();
+                             //require('fs-extra').emptyDir(pathToEmpty).then(()=>{
+                                  cache.start(()=>{console.log('started')});
+                                  reply
                         .code(200)
-                        .send(`emptied: ${cacheFolder} successfully.`)
-                })
+                        .send(cache.list())
+                           //  })
                 .catch(err => {
                     reply
                         .code(500)
                         .header('Content-Type', 'application/json; charset=utf-8')
-                        .send(e)
+                        .send(err)
                 })
 
         }

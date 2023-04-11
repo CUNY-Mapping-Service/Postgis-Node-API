@@ -73,45 +73,23 @@ module.exports = function (fastify, opts, next) {
                             release()
 
                             if (result && typeof result !== 'undefined' && result.rows) {
-                                //Empty tile array
-<<<<<<< HEAD:routes/tilejson.js
-                                _json.tiles.length = 0;
-                                _json.vector_layers.length=0;
-=======
+
                                 _json.urls.length = 0;
 
->>>>>>> 21e500071c25962feffb73c65aeefe2c21163e9d:routes/getSources.js
+
                                 //Filter for geom tables only (Could also do this postgres but it's not)
                                 const geomRows = result.rows.filter(r=>r.columns.includes('geom' || r.columns.includes('geom_pt')));
 
                                 geomRows.forEach(row => {
                                     const cols = row.columns.filter(c => c !== 'geom').join(',');
-<<<<<<< HEAD:routes/tilejson.js
-                                    const tileURL = `https://${process.env.PUBLIC_HOST}/${process.env.URL_PATH}v1/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}?geom_column=geom&columns=${cols}&useCache=false`;
-                                    _json.tiles.push(tileURL);
 
-                                    let layer = {};
-                                    layer.id=`${row.schema[0]}.${row.table_name}`;
-
-                                    layer.fields={};
-                                    row.columns.forEach(col=>{
-                                    	layer.fields[col] = col;
-                                    });
-
-							        _json.vector_layers.push(layer)
-
-=======
                                     const tileURL = `https://${process.env.PUBLIC_HOST}/${process.env.URL_PATH}v1/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}?geom_column=geom&columns=${cols}`;
                                     _json.urls.push({
                                         url:tileURL,
-                                        sourceLayer:`${row.schema[0]}.${row.table_name}`
+                                        sourceLayer:`${row.schema[0]}.${row.table_name}`,
+                                        columns: cols
                                     });
-                                    //_json.vector_layers.push(`${row.schema[0]}.${row.table_name}`)
->>>>>>> 21e500071c25962feffb73c65aeefe2c21163e9d:routes/getSources.js
-                                    //Include separate point geom tables
-                                    // if(cols.includes('geom_pt')){
-                                    //     _json.tiles.push(tileURL.replace('geom_column=geom','geom_column=geom_pt'));
-                                    // }
+
                                 });
                             }
 

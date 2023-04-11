@@ -1,8 +1,8 @@
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '.';
-const fs = require("fs");
+const fs = require("fs-extra");
 const config = require('../config')
-const url = `/tilejson`;
+const url = `/update-tilejson`;
 const os = process.env.OS || 'WIN';
 
 const schema = {

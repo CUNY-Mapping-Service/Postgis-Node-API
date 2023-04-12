@@ -40,26 +40,26 @@ module.exports = function (fastify, opts, next) {
         handler: async function (request, reply) {
             const cacheFolder = `${process.argv.slice(2)[0]}` || '.';
 
-          //  console.log(cacheFolder)
+            //  console.log(cacheFolder)
 
-           const relPath = `${cacheFolder}/${process.env.CACHE_FOLDER || 'tilecache'}`;
-          const pathToEmpty = path.join(__dirname.replace('\\routes',''),path.normalize(relPath));
+            const relPath = `${cacheFolder}/${process.env.CACHE_FOLDER || 'tilecache'}`;
+            const pathToEmpty = path.join(__dirname.replace('\\routes', ''), path.normalize(relPath));
 
-           cache.destroy();
-        
-          cp.exec(`del /q /s ${path.normalize(pathToEmpty)}\\*.mvt`)
-         // await fsAsync.unlink(path.normalize(pathToEmpty))
-           // await fsAsync.readdir(path.normalize(pathToEmpty)).then((f) => {console.log(f); Promise.all(f.map(e => fsAsync.unlink(e)))})
-               cache.start();
+            cache.destroy();
+            if(os === 'WIN'){
+                cp.exec(`del /q /s ${path.normalize(pathToEmpty)}\\*.mvt`);
+            }
+
+            cache.start();
 
             reply
                 .code(200)
                 .send('success')
-         //  })
+            //  })
 
 
-         
-                                 
+
+
 
 
         }

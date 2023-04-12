@@ -6,9 +6,9 @@ const url = `/get-sources`;
 const os = process.env.OS || 'WIN';
 
 const schema = {
-    description: 'Get tilejson with all tables and views that have geom column',
+    description: 'Get sources from all tables and views that have geom column',
     tags: ['meta'],
-    summary: 'Get tilejson with all tables and views that have geom column'
+    summary: 'Get sources from all tables and views that have geom column'
 }
 
 const sql = () => {
@@ -63,7 +63,7 @@ module.exports = function (fastify, opts, next) {
                 })
 
                 try {
-                    const tilejson = fs.readFileSync(`${cacheFolder}/tile.json`, 'utf8');
+                  //  const tilejson = fs.readFileSync(`${cacheFolder}/tile.json`, 'utf8');
                     // parse JSON string to JSON object
                     let _json = {urls:[]};
 
@@ -78,7 +78,7 @@ module.exports = function (fastify, opts, next) {
 
                                 //Filter for geom tables only (Could also do this postgres but it's not)
                                 const geomRows = result.rows.filter(r=>r.columns.includes('geom' || r.columns.includes('geom_pt')));
-                                console.log(geomRows)
+                               // console.log(geomRows)
 
                                 geomRows.forEach(row => {
                                     const cols = row.columns.filter(c => c !== 'geom').join(',');

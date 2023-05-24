@@ -1,29 +1,20 @@
 
 const fs = require("fs-extra");
 
- const _args = process.argv.slice(2);
- const deployPath = _args[0] || '.';
+const _args = process.argv.slice(2);
+const deployPath = _args[0] || '.';
 
- const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
+const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
-// const cache = recache(cacheRootFolderName, {
-//   persistent: true,                           // Make persistent cache
-//   store: true                                 // Enable file content storage
-// }, (cache) => {
-//   console.log('mvt Cache ready!');
 
-//   // cache.read(...);
-// });
-const cache = require('../cache');
-// route query
 const sql = (params, query) => {
 
-let simplifyStatement; 
-let simplifyMultiplier = query.simplifyByZoom ? +params.z : 1;
+  let simplifyStatement;
+  let simplifyMultiplier = query.simplifyByZoom ? +params.z : 1;
 
-if(query.simplify && query.simplify > 0){
-	simplifyStatement = `ST_Simplify(ST_Transform(${query.geom_column}, 3857),${+query.simplify*+simplifyMultiplier})`
-}
+  if (query.simplify && query.simplify > 0) {
+    simplifyStatement = `ST_Simplify(ST_Transform(${query.geom_column}, 3857),${+query.simplify * +simplifyMultiplier})`
+  }
 
   return `
     WITH mvtgeom as (
@@ -49,9 +40,8 @@ if(query.simplify && query.simplify > 0){
         -- Optional Filter
         ${query.filter ? ` AND ${query.filter}` : ''}
     )
-    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, 'geom' ${
-    query.id_column ? `, '${query.id_column}'` : ''
-  }) AS mvt from mvtgeom;
+    SELECT ST_AsMVT(mvtgeom.*, '${params.table}', 4096, 'geom' ${query.id_column ? `, '${query.id_column}'` : ''
+    }) AS mvt from mvtgeom;
   `
 }
 
@@ -133,20 +123,19 @@ module.exports = function (fastify, opts, next) {
 
         const p = request.params;
         const q = request.query;
-        const geom_column = request.query.geom_column
-        const tilePathRoot = `<root>/${p.table}-${Object.values(q).join('-')}/${p.z}/${p.x}/${p.y}.mvt`
-        const tilePathRel = `${cacheRootFolderName}/${p.table}-${Object.values(q).join('-')}/${p.z}/${p.x}/${p.y}.mvt`
-        const tileFolder = `${cacheRootFolderName}/${p.table}-${Object.values(q).join('-')}/${p.z}/${p.x}`
+        const geom_column = request.query.geom_column;
+        const cacheID = require('../cache').CACHE_ID;
+        const tilePathRoot = `<root>/${p.table}-${geom_column}-${Object.values(q).join('-')}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
+        const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${Object.values(q).join('-')}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
+        const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${Object.values(q).join('-')}-${cacheID}/${p.z}/${p.x}`
 
-        if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
-          //console.log(`cache hit: ${tilePathRel} \r\n`)
+        if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache === 'true')) {
           const mvt = cache.get(tilePathRoot).content;
           release()
-          reply.headers({'Content-Type': 'application/x-protobuf','cached-tile':'true'}).send(mvt)
+          reply.headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'true' }).send(mvt)
 
         } else {
           console.log(`cache miss: ${tilePathRel} \r\n`)
-           console.log(sql(request.params, request.query))
           client.query(sql(request.params, request.query), function onResult(
             err,
             result
@@ -156,22 +145,20 @@ module.exports = function (fastify, opts, next) {
               reply.send(err)
             } else {
               const mvt = result.rows[0].mvt;
-              //console.log(mvt.length, '\r\n')
               if (mvt.length === 0) {
-                 if (!fs.existsSync(tileFolder)) {
+                if (!fs.existsSync(tileFolder)) {
                   console.log('making empty folder')
-                    fs.mkdir(tileFolder, { recursive: true },function(err){
-                      console.log(err)
-                    });
-                  }
-                   fs.open(tilePathRel, 'w', function (err) {
-                    if (err) {
-                      return console.log(err);
-                    }
+                  fs.mkdir(tileFolder, { recursive: true }, function (err) {
+                    console.log(err)
                   });
+                }
+                fs.open(tilePathRel, 'w', function (err) {
+                  if (err) {
+                    return console.log(err);
+                  }
+                });
                 reply.code(204)
               } else {
-              	//console.log(`saving: ${tilePathRel} \r\n`);
                 try {
                   if (!fs.existsSync(tileFolder)) {
                     fs.mkdirSync(tileFolder, { recursive: true });
@@ -182,12 +169,12 @@ module.exports = function (fastify, opts, next) {
                       return console.log(err);
                     }
                   });
-                }catch(e){
+                } catch (e) {
                   console.log(e);
                   console.log('\r\n')
                 }
               }
-              reply.headers({'Content-Type': 'application/x-protobuf','cached-tile':'false'}).send(mvt)
+              reply.headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'false' }).send(mvt)
             }
           })
         }

@@ -26,7 +26,7 @@ config.swagger.info.description = config.swagger.info.description
 
 
 const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || `${deployPath}tilecache`;
-console.log('folder set to: ',cacheFolder)
+console.log('folder set to: ',cacheFolder);
 
 if (!fs.existsSync(cacheFolder)) {
   console.log('creating folder: ',cacheFolder)

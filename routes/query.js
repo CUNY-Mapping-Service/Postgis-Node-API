@@ -1,5 +1,5 @@
 const qc = require("node-cache");
-const queryCache = new qc({ stdTTL: 1800, checkperiod: 1900 } );
+const queryCache = new qc({ stdTTL: 600, checkperiod: 300 } );
 // route query
 const sql = (params, query) => {
   return `

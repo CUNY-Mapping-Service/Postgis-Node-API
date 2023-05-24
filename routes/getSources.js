@@ -83,11 +83,12 @@ module.exports = function (fastify, opts, next) {
                                 geomRows.forEach(row => {
                                     const cols = row.columns.filter(c => c !== 'geom').join(',');
 
-                                    const tileURL = `https://${process.env.PUBLIC_HOST}/${process.env.URL_PATH}v1/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}?geom_column=geom&columns=${cols}`;
+                                    const tileURL = `https://${process.env.PUBLIC_HOST}${process.env.URL_PATH}v1/mvt/${row.schema[0]}.${row.table_name}/{z}/{x}/{y}?geom_column=geom&columns=${cols}`;
                                     _json.urls.push({
                                         url:tileURL,
-                                        sourceLayer:`${row.schema[0]}.${row.table_name}`,
-                                        columns: cols
+                                        schema:row.schema[0],
+                                        tableName:row.table_name,
+                                        columns: cols                                        
                                     });
 
                                 });

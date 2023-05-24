@@ -1,4 +1,4 @@
-//const recache = require("recache")
+///DEPRICATED
 const fs = require("fs-extra");
 
 const _args = process.argv.slice(2);

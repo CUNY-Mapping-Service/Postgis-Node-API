@@ -6,7 +6,7 @@ const deployPath = _args[0] || '.';
 
 const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
-
+const cache = require('../cache');
 const sql = (params, query) => {
 
   let simplifyStatement;

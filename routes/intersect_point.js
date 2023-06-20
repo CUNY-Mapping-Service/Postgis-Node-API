@@ -5,13 +5,20 @@ const sql = (params, query) => {
   const [x, y, srid] = params.point.match(/^((-?\d+\.?\d+)(,-?\d+\.?\d+)(,[0-9]{4}))/)[0].split(',')
   let asGeojson = query.asGeojson === 'true';
 
-  let selectStatement =  `
+  let tables = params.table.split(',');
+
+  let selectStatement =  '';
+
+ for(let t =0;t<tables.length;t++){
+
+ let tableStatement = `
   SELECT 
-    ST_Transform(${query.geom_column}, 4326) as geom
-        ${query.columns ? `, ${query.columns}` : ''}
+    ${query.noGeom === 'true' ? '':`ST_Transform(${query.geom_column}, 4326) as geom`}
+        ${query.columns ? `${query.noGeom === 'true' ? '':','} ${query.columns}` : ''}
+        ${query.noGeom === 'true' || query.columns ? ',':''} ${t} sortOrder
   
   FROM
-    ${params.table}
+    ${tables[t]}
   
   WHERE
     ST_DWithin(
@@ -21,7 +28,7 @@ const sql = (params, query) => {
           st_makepoint(${x}, ${y}), 
           ${srid}
         ),
-        (SELECT ST_SRID(${query.geom_column}) FROM ${params.table} LIMIT 1)
+        (SELECT ST_SRID(${query.geom_column}) FROM ${tables[t]} LIMIT 1)
       ),
       ${query.distance}
     )
@@ -36,10 +43,24 @@ const sql = (params, query) => {
   `
 
   if(asGeojson){
-  	selectStatement = `SELECT
+  	tableStatement = `SELECT
       ST_AsGeoJSON(subq.*, '', 4) AS geojson
-    FROM (` + selectStatement + ` ) as subq`
+    FROM (` + tableStatement + ` ) as subq`
   }
+
+  selectStatement += tableStatement;
+
+if(tables.length > 1){
+  if(t<tables.length-1){
+
+selectStatement+=`
+UNION ALL
+`
+  }else{
+  	selectStatement += 'ORDER BY sortOrder'
+  }
+}
+}
 
   return selectStatement
 }

@@ -2,9 +2,9 @@ const cp = require("child_process");
 //const recache = require("recache")
 const cache = require('../cache');
 const schema = {
-    description: 'Delete Cache',
+    description: 'DEPRICATED! USE RESET-CACHE INSTEAD',
     tags: ['meta'],
-    summary: 'delete cache tables',
+    summary: 'DEPRICATED! USE RESET-CACHE INSTEAD',
     security: [
         {
             "apiKey": []

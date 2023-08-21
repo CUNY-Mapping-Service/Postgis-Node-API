@@ -1,44 +1,42 @@
-const qc = require("node-cache");
-const queryCache = new qc({ stdTTL: 600, checkperiod: 300 } );
 // route query
+const qc = require("node-cache");
+const queryCache = new qc();
+
 const sql = (params, query) => {
-  let withGeojson = query.withGeojson === 'true';
-  let tableStatement = `
-  SELECT
-    ${query.columns}
-    `
-    if(withGeojson){
-      tableStatement += `, ST_asGeojson(ST_Transform(geom,4326)) as geojson`
+  const return_cols = query.return_columns || '*';
+
+  const searchText = query.queryText.replace(/[ ]/g,',') || '';
+
+ let withGeojson = query.withGeojson === 'true';
+
+  const where = ()=>{
+    if(!query.ts_columns) return `WHERE ts @@ to_tsquery('english', '${searchText}')`;
+
+    let cols = query.ts_columns.split(',');
+    if(cols.length === 1) return `WHERE ${query.ts_columns} @@ to_tsquery('english', '${searchText}')`;
+
+    let whereStatement = ' WHERE'
+    for(let c=0;c<cols.length;c++){
+      whereStatement+=` ${cols[c]} @@ to_tsquery('english', '${searchText}:*')`
+      if(c<cols.length-1) whereStatement += ' OR'
     }
-  
-  tableStatement += `
-  FROM
-  ${params.table}
+    return whereStatement;
+  }
 
-  -- Optional Filter
-  ${query.filter ? `WHERE ${query.filter}` : ''}
-
-  -- Optional Group
-  ${query.group ? `GROUP BY ${query.group}` : ''}
-
-  -- Optional sort
-  ${query.sort ? `ORDER BY ${query.sort}` : ''}
-
-  -- Optional limit
-  ${query.limit ? `LIMIT ${query.limit}` : ''}
-
+ 
+  return `
+  SELECT ${withGeojson?'ST_asGeojson(ST_Transform(geom,4326)) as geojson, ':''} ${return_cols}
+  FROM ${params.table}
+  ${where()}
+   ${query.limit ? `LIMIT ${query.limit}` : ''}
   `
-
-
-    return tableStatement
-  
 }
 
 // route schema
 const schema = {
-  description: 'Query a table or view.',
+  description: 'Use ts vector to search for table or view with english text',
   tags: ['api'],
-  summary: 'table query',
+  summary: 'text search',
   params: {
     table: {
       type: 'string',
@@ -46,31 +44,28 @@ const schema = {
     }
   },
   querystring: {
-    withGeojson: {
+    ts_columns: {
       type: 'string',
-      description: 'Set to true to return geojson'
+      description: 'Name of the ts vector column or comma separated columns',
+      default:'ts'
     },
-    columns: {
+    return_columns: {
       type: 'string',
-      description: 'Columns to return.',
+      description: 'Columns to return',
       default: '*'
     },
-    filter: {
+    queryText: {
       type: 'string',
-      description: 'Optional filter parameters for a SQL WHERE statement.'
+      description: 'Text to search'
     },
-    sort: {
+     withGeojson: {
       type: 'string',
-      description: 'Optional sort by column(s).'
+      description: 'Set to true to return geojson'
     },
     limit: {
       type: 'integer',
       description: 'Optional limit to the number of output features.',
-      default: 100
-    },
-    group: {
-      type: 'string',
-      description: 'Optional column(s) to group by.'
+      default: 25
     }
   }
 }
@@ -79,17 +74,19 @@ const schema = {
 module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
-    url: '/query/:table',
+    url: '/text-search/:table',
     schema: schema,
     handler: function (request, reply) {
       fastify.pg.connect(onConnect)
-      console.log('connect')
+
       function onConnect(err, client, release) {
+        if(err) console.log(err)
         if (err) return reply.send({
           "statusCode": 500,
           "error": "Internal Server Error",
           "message": "unable to connect to database server"
         })
+
         
         const key = request.url
         const cachedResp = queryCache.get(key);
@@ -100,6 +97,7 @@ module.exports = function (fastify, opts, next) {
           client.query(
             sql(request.params, request.query),
             function onResult(err, result) {
+             // console.log(sql(request.params, request.query))
               release()
               reply.send(err || result.rows)
               if (result && typeof result !== 'undefined' && result.rows){

@@ -6,7 +6,7 @@ const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilec
 
 module.exports = recache(cacheRootFolderName, {
   persistent: true,                           // Make persistent cache
-  store: true                                 // Enable file content storage
+  store: false                                 // Enable file content storage
 }, (cache) => {
   console.log('mvt Cache ready!');
 });

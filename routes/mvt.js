@@ -103,7 +103,7 @@ const schema = {
     }
   }
 }
-
+const cacheID = require('../cache').CACHE_ID;
 // create route
 module.exports = function (fastify, opts, next) {
   fastify.route({
@@ -114,6 +114,7 @@ module.exports = function (fastify, opts, next) {
       fastify.pg.connect(onConnect)
 
       function onConnect(err, client, release) {
+      //	console.log(cache.list())
         if (err)
           return reply.send({
             statusCode: 500,
@@ -124,18 +125,25 @@ module.exports = function (fastify, opts, next) {
         const p = request.params;
         const q = request.query;
         const geom_column = request.query.geom_column;
-        const cacheID = require('../cache').CACHE_ID;
-        const tilePathRoot = `<root>/${p.table}-${geom_column}-${Object.values(q).join('-')}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
-        const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${Object.values(q).join('-')}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
-        const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${Object.values(q).join('-')}-${cacheID}/${p.z}/${p.x}`
+        
+        const cols = Object.values(q).join(',').split(',').map(k=>k[0]).join('');
+        console.log(cols)
+        const tilePathRoot = `<root>/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
+        const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
+        const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}`
 
         if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache === 'true')) {
-          const mvt = cache.get(tilePathRoot).content;
+          //const mvt = cache.get(tilePathRoot).content;
+          //console.log('hit: ',mvt)
+          const mvt = fs.readFileSync(tilePathRel);
+   // console.log(data.toString());
           release()
-          reply.headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'true' }).send(mvt)
+          reply
+          .headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'true' })
+          .send(mvt)
 
         } else {
-          console.log(`cache miss: ${tilePathRel} \r\n`)
+         // console.log(`cache miss: ${tilePathRel} \r\n`)
           client.query(sql(request.params, request.query), function onResult(
             err,
             result
@@ -152,11 +160,11 @@ module.exports = function (fastify, opts, next) {
                     console.log(err)
                   });
                 }
-                fs.open(tilePathRel, 'w', function (err) {
-                  if (err) {
-                    return console.log(err);
-                  }
-                });
+                // fs.open(tilePathRel, 'w', function (err) {
+                //   if (err) {
+                //     return console.log(err);
+                //   }
+                // });
                 reply.code(204)
               } else {
                 try {
@@ -164,7 +172,7 @@ module.exports = function (fastify, opts, next) {
                     fs.mkdirSync(tileFolder, { recursive: true });
                   }
                   //Save mvt file from rows in tilecache
-                  fs.writeFile(tilePathRel, mvt, function (err) {
+                  fs.writeFileSync(tilePathRel, mvt, function (err) {
                     if (err) {
                       return console.log(err);
                     }

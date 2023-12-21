@@ -81,6 +81,12 @@ fastify.register(require('@fastify/autoload'), {
   dir: path.join(__dirname, 'routes')
 })
 
+// if(process.env.CUSTOM_ROUTES){
+//   fastify.register(require('@fastify/autoload'), {
+//     dir: path.join(__dirname, 'routes')
+//   })
+// }
+
 // Launch server
 fastify.listen({port:+process.env.PORT || 80, host:config.host || 'localhost'}, function (err, address) {
   if (err) {

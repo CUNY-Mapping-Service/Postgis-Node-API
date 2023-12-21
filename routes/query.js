@@ -93,13 +93,16 @@ module.exports = function (fastify, opts, next) {
         
         const key = request.url
         const cachedResp = queryCache.get(key);
+        console.log('cached: ',typeof cachedResp !== 'undefined');
         if (typeof cachedResp !== 'undefined') {
           release();
           reply.send(cachedResp);
         } else {
+         
           client.query(
             sql(request.params, request.query),
             function onResult(err, result) {
+              if(err) console.log(sql(request.params, request.query))
               release()
               reply.send(err || result.rows)
               if (result && typeof result !== 'undefined' && result.rows){

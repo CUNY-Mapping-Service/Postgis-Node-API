@@ -4,6 +4,8 @@ const fs = require("fs-extra");
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '.';
 
+const enableCache= false;
+
 const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 console.log('cacheRootFolderName: ',cacheRootFolderName)
 let tableNames = {}
@@ -118,7 +120,7 @@ module.exports = function (fastify, opts, next) {
           const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}/${p.y}.mvt`
           const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}`
           
-          if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
+          if (enableCache && cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
             console.log(`schema cache hit: ${tilePathRel}`)
             const mvt = cache.get(tilePathRoot).content;
             release()

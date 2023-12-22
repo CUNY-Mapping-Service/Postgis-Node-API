@@ -9,7 +9,7 @@ let selectStatement = "";
 
 if(props.asGeojson){
   	tableStatement = `SELECT
-      ST_AsGeoJSON(subq.*, '', 4) AS geojson
+      ST_AsGeoJSON(subq.*) AS geojson
     FROM (` + tableStatement + ` ) as subq`
   }
 

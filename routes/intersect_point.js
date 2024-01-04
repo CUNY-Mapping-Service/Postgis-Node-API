@@ -14,9 +14,10 @@ const sql = (params, query) => {
  let tableStatement = `
   SELECT 
     ${query.noGeom === 'true' ? '':`ST_Transform(${query.geom_column}, 4326) as geom`}
-        ${query.columns ? `${query.noGeom === 'true' ? '':','} ${query.columns}` : ''}
+    ${query.withGeojson === 'true' ? `${query.noGeom === 'true' ? '':','} ST_asGeojson(ST_Transform(geom,4326)) as geojson, `:''}    
+        ${query.columns ? `${query.noGeom === 'true'  ? '':','} ${query.columns}` : ''}
         ${query.noGeom === 'true' || query.columns ? ',':''} ${t} sortOrder
-  
+    
   FROM
     ${tables[t]}
   
@@ -61,7 +62,7 @@ UNION ALL
   }
 }
 }
-
+  console.log(selectStatement)
   return selectStatement
 }
 
@@ -111,7 +112,15 @@ const schema = {
     },
     asGeojson: {
       type: 'string',
-      description: 'Set to true to return geojson'
+      description: 'Set to true to return the entire response as geojson'
+    },
+    withGeojson: {
+      type: 'string',
+      description: 'Set to true to return the geometry ONLY as geojson'
+    },
+    noGeom:{
+      type: 'string',
+      description: 'DEPRICATED. Set to true to omit the raw geometry. Will still return geojson as column if withGeojson set to true.'
     }
   }
 }

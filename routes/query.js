@@ -2,6 +2,7 @@ const qc = require("node-cache");
 const queryCache = new qc({ stdTTL: 600, checkperiod: 300 } );
 // route query
 const sql = (params, query) => {
+  console.log('making sql')
   let withGeojson = query.withGeojson === 'true';
   let tableStatement = `
   SELECT
@@ -28,7 +29,7 @@ const sql = (params, query) => {
   ${query.limit ? `LIMIT ${query.limit}` : ''}
 
   `
-
+  console.log(tableStatement)
 
     return tableStatement
   
@@ -98,7 +99,7 @@ module.exports = function (fastify, opts, next) {
           release();
           reply.send(cachedResp);
         } else {
-         
+         console.log('not cached')
           client.query(
             sql(request.params, request.query),
             function onResult(err, result) {

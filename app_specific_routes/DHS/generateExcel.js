@@ -60,7 +60,7 @@ fastify.route({
       const shelters = _data.bufferedProperties?.shelters;
       const facs = _data.bufferedProperties?.facilities;
 
-      if(facs && facs.length && shelters.length > 0){
+      if(facs && facs.length && facs.length > 0){
         facs.forEach(fac=>{
         worksheet2.insertRow(8,[
             '',

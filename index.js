@@ -10,15 +10,7 @@ console.log('deploy folder: ',deployPath)
 
 require('dotenv').config({path:`${deployPath}.env`});
 
-// const NodeCache = ;
-
-if(_args[1] && _args[1]==='-test'){
-  console.log('TESTING ENVIRONMENT')
-  config.swagger.basePath = config.swagger.basePath.replace('$title$', '')
-}else{
-  config.swagger.basePath = config.swagger.basePath.replace('$title$', process.env.URL_PATH)
-}
-
+config.swagger.basePath = config.swagger.basePath.replace('$title$', process.env.URL_PATH)
 config.swagger.info.title = config.swagger.info.title.replace('$title$', process.env.TITLE)
 config.swagger.info.description = config.swagger.info.description
   .replace('$title$', process.env.TITLE)
@@ -40,16 +32,15 @@ if(process.env.LOG==='FALSE'){
 // postgres connection
 fastify.register(require('@fastify/postgres'), {
   connectionString: `${process.env.USER_PASSWORD}@${process.env.SERVER_DB}`
-  //connectionString: "postgres://application:cuny2o2!@wa14bv/us_redistricting"
+  //egconnectionString: "postgres://application:cuny2o2!@wa14bv/us_redistricting"
 })
 
 console.log(`connecting to: ${process.env.USER_PASSWORD}@${process.env.SERVER_DB}`)
 
-// compression - add x-protobuf
 fastify.register(
   require('@fastify/compress'), {
-  customTypes: /^text\/|\+json$|\+text$|\+xml|x-protobuf$/
-}
+    customTypes: /^text\/|\+json$|\+text$|\+xml|x-protobuf$/
+  }
 )
 
 // cache
@@ -71,16 +62,21 @@ fastify.register(require('@fastify/swagger'), {
 
 // static documentation path
 fastify.register(require('@fastify/static'), {
-  root: path.join(__dirname, 'documentation')
+  root: path.join(__dirname, 'public')
 });
-
-
 
 // routes
 fastify.register(require('@fastify/autoload'), {
   dir: path.join(__dirname, 'routes')
 })
 
+if(process.env.APP_SPECIFIC_ROUTES){
+  fastify.register(require('@fastify/autoload'), {
+    dir: path.join(__dirname, `app_specific_routes/${process.env.APP_SPECIFIC_ROUTES}`)
+  })
+}
+
+//TODO: These should be handled like APP_SPECIFIC_ROUTES but not sure if removing this would break IMAGE
 // if(process.env.CUSTOM_ROUTES){
 //   fastify.register(require('@fastify/autoload'), {
 //     dir: path.join(__dirname, 'routes')

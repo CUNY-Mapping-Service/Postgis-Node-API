@@ -3,7 +3,7 @@ const queryCache = new qc();
 // route query
 const sql = (props) => {
   let tableStatement = `
-  SELECT  ST_Transform(${props.geom_column}, 4326) as geom, ${props.columns} FROM ${props.table} t WHERE ST_Intersects(${props.geom_column}, ST_Buffer('${props.inputGeom}', ${props.distance}))
+  SELECT  ST_Transform(${props.geom_column}, 4326) as geom, ${props.columns} FROM ${props.table} t WHERE ST_Intersects(ST_Transform(${props.geom_column}, 4326), ST_GeomFromGeoJSON('${props.inputGeom}'))
   `
 let selectStatement = "";
 

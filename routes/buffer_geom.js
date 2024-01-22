@@ -9,7 +9,8 @@ let selectStatement = "";
 const distances = query.distance.split(',').map(d=>+d);
 
 for(let d = 0; d<distances.length;d++){
-  selectStatement+=`select ST_Transform(ST_Buffer((select ${query.geom_column} from ${params.table} dt where ${query.filter}),${distances[d]},'quad_segs=16'),4326)`;
+  //selectStatement+=`select ST_Transform(ST_Buffer((select ${query.geom_column} from ${params.table} dt where ${query.filter}),${distances[d]},'quad_segs=16'),4326)`;
+  selectStatement+=`select st_transform(ST_Buffer(st_transform((select ${query.geom_column || 'geom'} from ${params.table} where ${query.filter}),2263),${distances[d]}),4326)`
   if(d<distances.length -1){
     selectStatement += ' union '
   }

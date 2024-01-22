@@ -29,7 +29,7 @@ const sql = (params, query) => {
   ${query.limit ? `LIMIT ${query.limit}` : ''}
 
   `
-  console.log(tableStatement)
+  //console.log(tableStatement)
 
     return tableStatement
   

@@ -21,7 +21,6 @@ fastify.route({
   url: '/generateExcel',
   schema: schema,
   handler: async (request, reply) => {
-    console.log('resp')
     const workbook = new xl.Workbook();
     const templateFile = path.join(__dirname, 'dhs_template.xlsx')
     let doc;
@@ -48,8 +47,7 @@ fastify.route({
     worksheet1.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address}`;
      worksheet1.getCell('B36').value = _data.processedData.address;
      const isDistrict = (_data.type !== 'property' && typeof _data.processedDistricts[_data.type] !== 'undefined');
-     console.log('isdistr:')
-     console.log(typeof isDistrict)
+
       worksheet1.getCell('B37').value = isDistrict ? _data.processedDistricts[_data.type].name : '';
 
    ///////////////////////////////////////////
@@ -94,7 +92,7 @@ fastify.route({
           worksheet2.insertRow(8,[
             isDistrict ? _data.processedDistricts[_data.type].name : '',
             shelter.facility_name,
-            `${shelter.address_line1}, ${shelter.city}, NY ${shelter.zip}`,
+            shelter.address,
             shelter.facility_type,
             `${shelter.designated_units_beds_number} beds`
           ])

@@ -18,3 +18,5 @@ deployments/*
 !deployments/example/
 !deployments/example/*
 !deployments/*.bat
+
+NYCDHS_SiteLocationData*

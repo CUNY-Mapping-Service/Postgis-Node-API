@@ -59,6 +59,7 @@ fastify.route({
     worksheet2.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address},${_data.processedDistricts[_data.type] ? _data.processedDistricts[_data.type].name : ''}`;
       const shelters = _data.bufferedProperties?.shelters;
       const facs = _data.bufferedProperties?.facilities;
+      const sheltersInDistrict = _data.containedShelters;
 
       if(facs && facs.length && facs.length > 0){
         facs.forEach(fac=>{
@@ -83,9 +84,22 @@ fastify.route({
           ])
         });
       }
+      if(sheltersInDistrict && sheltersInDistrict.length && sheltersInDistrict.length > 0){
+        sheltersInDistrict.forEach(shelter => {
+          worksheet2.insertRow(8,[
+            _data.processedDistricts[_data.type] ? _data.processedDistricts[_data.type].name : '',
+            shelter.facility_name,
+            `${shelter.address_line1}, ${shelter.city}, NY ${shelter.zip}`,
+            shelter.facility_type,
+            `${shelter.designated_units_beds_number} beds`
+          ])
+        });
+      }
 
-      const _date = Date.now();
-      const filename = `NYCDHS_SiteLocationData_${_date}.xlsx`
+      const _date = new Date();
+
+      
+      const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
       const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
 
       try{

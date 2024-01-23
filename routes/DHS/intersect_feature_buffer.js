@@ -14,7 +14,7 @@ if(props.asGeojson){
   }
 
   selectStatement += tableStatement;
-  console.log(selectStatement)
+ // console.log(selectStatement)
   return selectStatement;
 }
 
@@ -76,7 +76,7 @@ fastify.route({
               release()
               
               if (result && typeof result !== 'undefined' && result.rows){
-              	console.log(result.rows)
+              	//console.log(result.rows)
               	reply.send(result.rows)
                 //queryCache.set(key, result.rows, 900)
               }

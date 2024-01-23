@@ -84,7 +84,7 @@ if(process.env.APP_SPECIFIC_ROUTES){
 // }
 
 // Launch server
-fastify.listen({port:+process.env.PORT || 80, host:config.host || 'localhost'}, function (err, address) {
+fastify.listen({port:+process.env.PORT || 80, host:config.host || '0.0.0.0'}, function (err, address) {
   if (err) {
     console.log(err)
     process.exit(1)

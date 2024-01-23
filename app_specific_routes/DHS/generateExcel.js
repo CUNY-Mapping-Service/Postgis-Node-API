@@ -21,13 +21,14 @@ fastify.route({
   url: '/generateExcel',
   schema: schema,
   handler: async (request, reply) => {
-
+    console.log('resp')
     const workbook = new xl.Workbook();
     const templateFile = path.join(__dirname, 'dhs_template.xlsx')
     let doc;
 
     try{
           doc = await workbook.xlsx.readFile(templateFile)
+          console.log('doc')
     }catch(e){
       console.log(e)
       reply.send({
@@ -38,15 +39,18 @@ fastify.route({
 
       return;
     }
-
+    
     const worksheet1 = doc.worksheets[0]
     const worksheet2 = doc.worksheets[1]
     //////////////////////////////////////////
     const _data = request.body.data;
-
+    //console.log(_data.type)
     worksheet1.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address}`;
      worksheet1.getCell('B36').value = _data.processedData.address;
-      worksheet1.getCell('B37').value = _data.processedDistricts[_data.type] ? _data.processedDistricts[_data.type].name : '';
+     const isDistrict = (_data.type !== 'property' && typeof _data.processedDistricts[_data.type] !== 'undefined');
+     console.log('isdistr:')
+     console.log(typeof isDistrict)
+      worksheet1.getCell('B37').value = isDistrict ? _data.processedDistricts[_data.type].name : '';
 
    ///////////////////////////////////////////
     const imgData = workbook.addImage({
@@ -56,19 +60,20 @@ fastify.route({
 
     worksheet1.addImage(imgData, 'B3:J25');
     ////////////////////////////////////////////////
-    worksheet2.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address},${_data.processedDistricts[_data.type] ? _data.processedDistricts[_data.type].name : ''}`;
+    worksheet2.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address},${isDistrict ? _data.processedDistricts[_data.type].name : ''}`;
       const shelters = _data.bufferedProperties?.shelters;
       const facs = _data.bufferedProperties?.facilities;
       const sheltersInDistrict = _data.containedShelters;
+   
 
       if(facs && facs.length && facs.length > 0){
         facs.forEach(fac=>{
         worksheet2.insertRow(8,[
             '',
-            fac.properties.facname || '',
-            `${fac.properties.address || ''} ${fac.properties.city || ''} NY ${fac.properties.zipcode || ''}`,
-            fac.properties.factype,
-            `${fac.properties.capcity > 0 ? fac.properties.capcity+fac.properties.captypedescrip:''}`
+            fac.facname || '',
+            fac.address,
+            fac.factype,
+            fac.capcity
           ])
         })
       }
@@ -77,17 +82,17 @@ fastify.route({
         shelters.forEach(shelter => {
           worksheet2.insertRow(8,[
             'S',
-            shelter.properties.facility_name,
-            `${shelter.properties.address_line1}, ${shelter.properties.city}, NY ${shelter.properties.zip}`,
-            shelter.properties.facility_type,
-            `${shelter.properties.designated_units_beds_number} beds`
+            shelter.facility_name,
+            shelter.address,
+            shelter.facility_type,
+            `${shelter.designated_units_beds_number} beds`
           ])
         });
       }
       if(sheltersInDistrict && sheltersInDistrict.length && sheltersInDistrict.length > 0){
         sheltersInDistrict.forEach(shelter => {
           worksheet2.insertRow(8,[
-            _data.processedDistricts[_data.type] ? _data.processedDistricts[_data.type].name : '',
+            isDistrict ? _data.processedDistricts[_data.type].name : '',
             shelter.facility_name,
             `${shelter.address_line1}, ${shelter.city}, NY ${shelter.zip}`,
             shelter.facility_type,
@@ -97,7 +102,6 @@ fastify.route({
       }
 
       const _date = new Date();
-
       
       const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
       const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`

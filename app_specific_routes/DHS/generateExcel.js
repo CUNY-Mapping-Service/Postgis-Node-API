@@ -44,11 +44,12 @@ fastify.route({
     //////////////////////////////////////////
     const _data = request.body.data;
     //console.log(_data.type)
-    worksheet1.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address}`;
+    worksheet1.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address},  ${_data.processedData.propertyDetails.zipcode}`;
      worksheet1.getCell('B36').value = _data.processedData.address;
      const isDistrict = (_data.type !== 'property' && typeof _data.processedDistricts[_data.type] !== 'undefined');
 
       worksheet1.getCell('B37').value = isDistrict ? _data.processedDistricts[_data.type].name : '';
+       worksheet1.getCell('B38').value = `Last updated on ${_data?.processedData?.shelter.lastupdated.split('T')[0]}`;
 
    ///////////////////////////////////////////
     const imgData = workbook.addImage({
@@ -56,9 +57,12 @@ fastify.route({
         extension: 'png',
     });
 
-    worksheet1.addImage(imgData, 'B3:J25');
+    worksheet1.addImage(imgData, {
+	  tl: { col: 1.5, row: 2.5 },
+	  ext: { width: _data.imageRatio[0], height: _data.imageRatio[1] }
+	});
     ////////////////////////////////////////////////
-    worksheet2.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address},${isDistrict ? _data.processedDistricts[_data.type].name : ''}`;
+    worksheet2.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address}, ${_data.processedData.propertyDetails.zipcode}, ${isDistrict ? _data.processedDistricts[_data.type].name : ''}`;
       const shelters = _data.bufferedProperties?.shelters;
       const facs = _data.bufferedProperties?.facilities;
       const sheltersInDistrict = _data.containedShelters;
@@ -90,7 +94,7 @@ fastify.route({
       if(sheltersInDistrict && sheltersInDistrict.length && sheltersInDistrict.length > 0){
         sheltersInDistrict.forEach(shelter => {
           worksheet2.insertRow(8,[
-            isDistrict ? _data.processedDistricts[_data.type].name : '',
+            _data.processedDistricts[_data.type]?.name ? _data.processedDistricts[_data.type].name : '',
             shelter.facility_name,
             shelter.address,
             shelter.facility_type,

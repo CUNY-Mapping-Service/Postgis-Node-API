@@ -1,5 +1,0 @@
-HOME="C:\APIs\Postgis-Node-API" 
-SERVICE_NAME=serv-name-api
-SERVICE_DESCRIPTION=serv desc 
-NODE_EXE_PATH="C:\Program Files\nodejs\node.exe" 
-PATH_TO_DEPLOYMENT=C:\Users\wfield\Documents\Projects\Postgis-Node-API\deployments\US 

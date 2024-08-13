@@ -8,7 +8,7 @@ const sql = (params, query) => {
 	//const geoFilter =(query.geocode && query.geovalue)?`AND ${query.geocode}='${query.geovalue}'`:'';
 
 	const preOrPost = query.prepost === 'pre' ? '<=' : query.prepost === 'post' ? '>' : false;
-	const statementColName = params.table === 'vw_contributionsbyelectedoffice' ? 'statement_no_totals' : 'statement_no';
+	const statementColName = (params.table === 'vw_contributionsbyelectedoffice' || params.table === 'vw_contributionsbycandidate') ? 'statement_no_totals' : 'statement_no';
 
 	const prePostFilter = !preOrPost?'': `AND ${statementColName} ${preOrPost} ${query.cutoff}`;
 
@@ -23,7 +23,7 @@ const sql = (params, query) => {
   SUM(contribtotnotpeople) AS contribtotnotpeople
 	FROM ${params.table}
 	where ${query.filter} ${prePostFilter}`
-
+  console.log(tableStatement)
     return tableStatement
 }
 

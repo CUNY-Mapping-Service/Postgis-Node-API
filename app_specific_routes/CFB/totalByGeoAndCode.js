@@ -5,17 +5,19 @@ const sql = (params, query) => {
 	console.log(params)
 	console.log(query)
 
-	const geoFilter =(query.geocode && query.geovalue)?`AND ${query.geocode}='${query.geovalue}'`:'';
+	const geoFilter =(query.districtid)?`AND districtid='${query.districtid}'`:'';
 
 	const preOrPost = query.prepost === 'pre' ? '<=' : query.prepost === 'post' ? '>' : false;
 		const statementColName = params.table === 'vw_contributionsbyelectedoffice' ? 'statement_no_totals' : 'statement_no';
 
 	const prePostFilter = !preOrPost?'': `AND ${statementColName} ${preOrPost} ${query.cutoff}`;
 
-	let tableStatement = `SELECT ${query.geocode}, SUM(contribtotamt) AS total_sum, SUM(contribtotnum) AS total_num
+
+
+	let tableStatement = `SELECT districtid, districtname, SUM(contribtotamt) AS total_sum, SUM(contribtotnum) AS total_num
 	FROM ${params.table}
 	where curcode='${query.curcode}' ${geoFilter} ${prePostFilter}
-	GROUP BY ${query.geocode};`
+	GROUP BY districtid, districtname;`
 
 	console.log(tableStatement)
     return tableStatement
@@ -33,11 +35,7 @@ const schema = {
     }
   },
   querystring: {
-    geocode: {
-      type: 'string',
-      description: "Geo code eg. curzip"
-    },
-    geovalue:{
+    districtid:{
       type: 'string',
       description: "Geo code eg. 10001"
     },

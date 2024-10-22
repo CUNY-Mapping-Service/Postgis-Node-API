@@ -24,6 +24,10 @@ fastify.route({
     const workbook = new xl.Workbook();
     const templateFile = path.join(__dirname, 'dhs_template.xlsx')
     let doc;
+          const _date = new Date();
+      
+      const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
+      const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
 
     try{
           doc = await workbook.xlsx.readFile(templateFile)
@@ -103,13 +107,11 @@ fastify.route({
         });
       }
 
-      const _date = new Date();
-      
-      const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
-      const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
+
 
       try{
           await doc.xlsx.writeFile(outputFilename);
+          console.log(filename)
           reply.send(filename)
       }catch(e){
         console.log(e)

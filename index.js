@@ -16,6 +16,8 @@ config.swagger.info.description = config.swagger.info.description
   .replace('$title$', process.env.TITLE)
   .replace('$machine-db$', process.env.SERVER_DB)
 
+  console.log(process.env)
+
 
 const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || `${deployPath}tilecache`;
 console.log('folder set to: ',cacheFolder);
@@ -47,7 +49,8 @@ fastify.register(
 fastify.register(
   require('@fastify/caching'), {
   privacy: 'private',
-  expiresIn: config.cache
+  expiresIn: 900,
+  serverExpiresIn:900
 }
 )
 

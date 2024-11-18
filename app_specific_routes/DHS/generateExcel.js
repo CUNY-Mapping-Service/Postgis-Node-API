@@ -24,10 +24,6 @@ fastify.route({
     const workbook = new xl.Workbook();
     const templateFile = path.join(__dirname, 'dhs_template.xlsx')
     let doc;
-          const _date = new Date();
-      
-      const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
-      const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
 
     try{
           doc = await workbook.xlsx.readFile(templateFile)
@@ -53,7 +49,7 @@ fastify.route({
      const isDistrict = (_data.type !== 'property' && typeof _data.processedDistricts[_data.type] !== 'undefined');
 
       worksheet1.getCell('B37').value = isDistrict ? _data.processedDistricts[_data.type].name : '';
-       worksheet1.getCell('B38').value = `Last updated on ${_data?.processedData?.shelter.lastupdated.split('T')[0]}`;
+       worksheet1.getCell('B38').value = `Last updated on ${_data?.processedData?.shelter?.lastupdated.split('T')[0]}`;
 
    ///////////////////////////////////////////
     const imgData = workbook.addImage({
@@ -107,11 +103,13 @@ fastify.route({
         });
       }
 
-
+      const _date = new Date();
+      
+      const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
+      const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
 
       try{
           await doc.xlsx.writeFile(outputFilename);
-          console.log(filename)
           reply.send(filename)
       }catch(e){
         console.log(e)

@@ -1,5 +1,9 @@
 const qc = require("node-cache");
-const queryCache = new qc();
+
+
+// create route
+module.exports = function (fastify, opts, next) {
+  const queryCache = new qc();
 
 // route query
 const sql = (params, query) => {
@@ -43,9 +47,6 @@ const schema = {
     }
   }
 }
-
-// create route
-module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
     url: '/bbox/:table',
@@ -61,6 +62,11 @@ module.exports = function (fastify, opts, next) {
         })
         const key = request.url
         const cachedResp = queryCache.get(key);
+        const size = queryCache.getStats().ksize+queryCache.getStats().vsize;
+        const CACHE_SIZE_LIMIT = 25000;
+        if(size > CACHE_SIZE_LIMIT){
+          queryCache.flushAll()
+        }
         if (typeof cachedResp !== 'undefined') {
           release();
           reply.send(cachedResp);

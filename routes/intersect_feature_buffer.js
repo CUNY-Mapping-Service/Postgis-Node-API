@@ -1,5 +1,8 @@
 const qc = require("node-cache");
-const queryCache = new qc();
+
+
+module.exports = function (fastify, opts, next) {
+  const queryCache = new qc();
 // route query
 const sql = (props) => {
   let tableStatement = `
@@ -53,8 +56,6 @@ const schema = {
      // required: ['name']
     }
   }
-
-module.exports = function (fastify, opts, next) {
   console.log('create ifb')
 fastify.route({
   method: 'POST',

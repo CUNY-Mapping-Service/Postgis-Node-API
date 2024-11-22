@@ -1,6 +1,7 @@
 .env
 .directory
 node_modules
+package-lock.json
 TODO.md
 .vscode
 !tilecache/

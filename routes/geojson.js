@@ -1,4 +1,8 @@
-// route query
+
+
+// create route
+module.exports = function (fastify, opts, next) {
+  // route query
 const sql = (params, query) => {
   let bounds = query.bounds ? query.bounds.split(',').map(Number) : null;
 
@@ -74,9 +78,6 @@ const schema = {
     }
   }
 }
-
-// create route
-module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
     url: '/geojson/:table',

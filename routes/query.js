@@ -1,6 +1,11 @@
 const qc = require("node-cache");
-const queryCache = new qc({ stdTTL: 600, checkperiod: 300 } );
-// route query
+
+
+
+// create route
+module.exports = function (fastify, opts, next) {
+  const queryCache = new qc({ stdTTL: 600, checkperiod: 300 } );
+  // route query
 const sql = (params, query) => {
   console.log('making sql')
   let withGeojson = query.withGeojson === 'true';
@@ -76,15 +81,13 @@ const schema = {
   }
 }
 
-// create route
-module.exports = function (fastify, opts, next) {
   fastify.route({
     method: 'GET',
     url: '/query/:table',
     schema: schema,
     handler: function (request, reply) {
       fastify.pg.connect(onConnect)
-      console.log('connect')
+     // console.log('connect')
       function onConnect(err, client, release) {
         if (err) return reply.send({
           "statusCode": 500,
@@ -94,7 +97,12 @@ module.exports = function (fastify, opts, next) {
         
         const key = request.url
         const cachedResp = queryCache.get(key);
-        console.log('cached: ',typeof cachedResp !== 'undefined');
+        const size = queryCache.getStats().ksize+queryCache.getStats().vsize;
+        const CACHE_SIZE_LIMIT = 25000;
+        if(size > CACHE_SIZE_LIMIT){
+          queryCache.flushAll()
+        }
+        console.log(size)
         if (typeof cachedResp !== 'undefined') {
           release();
           reply.send(cachedResp);

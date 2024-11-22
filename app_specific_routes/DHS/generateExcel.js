@@ -1,6 +1,7 @@
 const xl = require('exceljs');
 const path = require('path');
 const fs = require("fs-extra");
+const { type } = require('os');
 
 const schema = {
     body: {
@@ -21,6 +22,7 @@ fastify.route({
   url: '/generateExcel',
   schema: schema,
   handler: async (request, reply) => {
+    console.log('handler')
     const workbook = new xl.Workbook();
     const templateFile = path.join(__dirname, 'dhs_template.xlsx')
     let doc;
@@ -36,42 +38,72 @@ fastify.route({
           "message": JSON.parse(e)
         });
 
-      return;
+      //return;
     }
-    
+  
     const worksheet1 = doc.worksheets[0]
     const worksheet2 = doc.worksheets[1]
+
     //////////////////////////////////////////
     const _data = request.body.data;
-    //console.log(_data.type)
-    worksheet1.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address},  ${_data.processedData.propertyDetails.zipcode}`;
-     worksheet1.getCell('B36').value = _data.processedData.address;
-     const isDistrict = (_data.type !== 'property' && typeof _data.processedDistricts[_data.type] !== 'undefined');
+   // console.log(_data)
+    const isDistrict = (_data?.type !== 'property' && _data?.processedDistricts && _data?.processedDistricts[_data.type] && typeof _data?.processedDistricts[_data.type] !== 'undefined');
+  
+    try{
+    worksheet1.getCell('A1').value = `Facilities within 1/2 Mile of ${_data?.processedData?.address},  ${_data?.processedData?.propertyDetails?.zipcode}`;
+     worksheet1.getCell('B36').value = _data?.processedData?.address;
 
-      worksheet1.getCell('B37').value = isDistrict ? _data.processedDistricts[_data.type].name : '';
-       worksheet1.getCell('B38').value = `Last updated on ${_data?.processedData?.shelter?.lastupdated.split('T')[0]}`;
+      worksheet1.getCell('B37').value = isDistrict ? _data?.processedDistricts[_data.type]?.name : '';
+       worksheet1.getCell('B38').value = `Last updated on ${_data?.processedData?.shelter?.lastupdated?.split('T')[0]}`;
+    } catch(e){
+      console.log(e)
+      reply.send({
+          "statusCode": 500,
+          "error": "Internal Server Error",
+          "message": JSON.parse(e)
+        });
 
+      //return;
+    }
+    
    ///////////////////////////////////////////
+   try{
+    if(_data && _data.image && typeof _data.image !== 'undefined'){
     const imgData = workbook.addImage({
-        base64: _data.image,
+        base64: _data?.image,
         extension: 'png',
     });
 
+    const imgHeight = Math.min(+_data?.imageRatio[1],545);
+    const imgWidth = imgHeight * (8.5 / 11);
     worksheet1.addImage(imgData, {
-	  tl: { col: 1.5, row: 2.5 },
-	  ext: { width: _data.imageRatio[0], height: _data.imageRatio[1] }
+	  tl: { col: 2.5, row: 2.5 },
+	  ext: { width: imgWidth, height: imgHeight }
 	});
+}
+} catch(e){
+  console.log(e)
+  reply.send({
+      "statusCode": 500,
+      "error": "Internal Server Error",
+      "message": JSON.parse(e)
+    });
+
+  //return;
+}
+
+try{
     ////////////////////////////////////////////////
-    worksheet2.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData.address}, ${_data.processedData.propertyDetails.zipcode}, ${isDistrict ? _data.processedDistricts[_data.type].name : ''}`;
-      const shelters = _data.bufferedProperties?.shelters;
-      const facs = _data.bufferedProperties?.facilities;
-      const sheltersInDistrict = _data.containedShelters;
+    worksheet2.getCell('A1').value = `Facilities within 1/2 Mile of ${_data.processedData?.address}, ${_data.processedData?.propertyDetails?.zipcode}, ${isDistrict ? _data?.processedDistricts[_data.type]?.name : ''}`;
+      const shelters = _data?.bufferedProperties?.shelters;
+      const facs = _data?.bufferedProperties?.facilities;
+      const sheltersInDistrict = _data?.containedShelters;
    
 
-      if(facs && facs.length && facs.length > 0){
-        facs.forEach(fac=>{
+      if(facs && typeof facs !== 'undefined' && facs.length && facs.length > 0){
+        facs.forEach((fac,idx)=>{
         worksheet2.insertRow(8,[
-            '',
+            idx+1,
             fac.facname || '',
             fac.address,
             fac.factype,
@@ -80,7 +112,7 @@ fastify.route({
         })
       }
 
-      if(shelters && shelters.length && shelters.length > 0){
+      if(shelters && typeof shelters !== 'undefined' && shelters.length && shelters.length > 0){
         shelters.forEach(shelter => {
           worksheet2.insertRow(8,[
             'S',
@@ -91,7 +123,7 @@ fastify.route({
           ])
         });
       }
-      if(sheltersInDistrict && sheltersInDistrict.length && sheltersInDistrict.length > 0){
+      if(sheltersInDistrict && typeof sheltersInDistrict !== 'undefined' && sheltersInDistrict.length && sheltersInDistrict.length > 0){
         sheltersInDistrict.forEach(shelter => {
           worksheet2.insertRow(8,[
             _data.processedDistricts[_data.type]?.name ? _data.processedDistricts[_data.type].name : '',
@@ -103,11 +135,21 @@ fastify.route({
         });
       }
 
-      const _date = new Date();
+     
+    } catch(e){
+      console.log(e)
+      reply.send({
+          "statusCode": 500,
+          "error": "Internal Server Error",
+          "message": JSON.parse(e)
+        });
+    
+      //return;
+    }
+    const _date = new Date();
       
-      const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
-      const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
-
+    const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth()+1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
+    const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
       try{
           await doc.xlsx.writeFile(outputFilename);
           reply.send(filename)

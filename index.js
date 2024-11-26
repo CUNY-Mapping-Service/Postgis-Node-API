@@ -75,7 +75,8 @@ fastify.register(require('@fastify/autoload'), {
 
 if(process.env.APP_SPECIFIC_ROUTES){
   fastify.register(require('@fastify/autoload'), {
-    dir: path.join(__dirname, `app_specific_routes/${process.env.APP_SPECIFIC_ROUTES}`)
+    dir: path.join(__dirname, `app_specific_routes/${process.env.APP_SPECIFIC_ROUTES}`),
+    maxDepth: 0 //No subfolders
   })
 }
 

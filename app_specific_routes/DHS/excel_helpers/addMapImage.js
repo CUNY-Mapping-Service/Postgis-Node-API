@@ -1,4 +1,4 @@
-module.exports = function(worksheet,_data){
+module.exports = function(worksheet,_data, workbook){
     if(_data && _data.image && typeof _data.image !== 'undefined'){
         const imgData = workbook.addImage({
             base64: _data?.image,

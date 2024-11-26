@@ -102,7 +102,7 @@ const schema = {
         if(size > CACHE_SIZE_LIMIT){
           queryCache.flushAll()
         }
-        console.log(size)
+        //console.log(size)
         if (typeof cachedResp !== 'undefined') {
           release();
           reply.send(cachedResp);

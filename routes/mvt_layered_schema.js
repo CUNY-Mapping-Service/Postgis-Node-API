@@ -1,6 +1,6 @@
 ///DEPRICATED
 const fs = require("fs-extra");
-
+const recache = require("recache")
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '.';
 
@@ -10,16 +10,14 @@ const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilec
 console.log('cacheRootFolderName: ',cacheRootFolderName)
 let tableNames = {}
 let columnNames = {}
-console.log('cache watching: ',cacheRootFolderName)
-// const cache = recache(cacheRootFolderName, {
-//   persistent: true,                           // Make persistent cache
-//   store: true                                 // Enable file content storage
-// }, (cache) => {
-//   console.log('layered-mvt Cache ready!');
 
-//   // cache.read(...);
-// });
-const cache = require('../cache');
+const cache = recache(cacheRootFolderName, {
+  persistent: false,                           // Make persistent cache
+  store: false                                 // Enable file content storage
+}, (cache) => {
+  console.log('mvt schema Cache ready!');
+});
+
 const qc = require("node-cache");
 const queryCache = new qc();
 

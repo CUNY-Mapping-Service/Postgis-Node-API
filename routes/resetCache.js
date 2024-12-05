@@ -1,8 +1,3 @@
-const cp = require("child_process");
-//const recache = require("recache")
-const cache = require('../cache');
-const { v4: uuidv4 } = require('uuid');
-
 const schema = {
     description: 'Reset Cache',
     tags: ['meta'],
@@ -15,7 +10,6 @@ const schema = {
 }
 
 const url = `/reset-cache`;
-console.log(require('../cache').CACHE_ID)
 
 module.exports = function (fastify, opts, next) {
 
@@ -36,14 +30,14 @@ module.exports = function (fastify, opts, next) {
             done();
         },
         handler: async function (request, reply) {
-
-            require('../cache').CACHE_ID = uuidv4();
-            cache.destroy();
-            cache.start();
+            //make cache id accessible from mvt
+            //require('../cache').CACHE_ID = uuidv4();
+            //cache.destroy();
+            //cache.start();
 
             reply
                 .code(200)
-                .send('success')
+                .send('Depricated, will revisit')
         }
     })
     next()

@@ -7,7 +7,7 @@ module.exports = function (fastify, opts, next) {
   const queryCache = new qc({ stdTTL: 600, checkperiod: 300 } );
   // route query
 const sql = (params, query) => {
-  console.log('making sql')
+ 
   let withGeojson = query.withGeojson === 'true';
   let tableStatement = `
   SELECT

@@ -56,7 +56,6 @@ const schema = {
      // required: ['name']
     }
   }
-  console.log('create ifb')
 fastify.route({
   method: 'POST',
   url: '/intersect-feature-buffer',

@@ -1,14 +1,34 @@
 
 const fs = require("fs-extra");
-const cache = require('../cache');
-const cacheID = require('../cache').CACHE_ID;
-
+const fastFolderSizeSync = require('fast-folder-size/sync')
+const cacheManager = require("../tileCacheManager");
 // create route
 module.exports = function (fastify, opts, next) {
+
+ 
   const _args = process.argv.slice(2);
   const deployPath = _args[0] || '.';
-
   const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
+
+  let tileCache = cacheManager.tileCache;
+
+  const bToMb = 1000000;
+  const MAX_MEGABYTE_SIZE = (process.env.MAX_TILE_CACHE_SIZE || 500) * bToMb;//mb times 1,000,000 = bytes
+
+  tileCache.on("ready",()=>{
+    console.log('ready again')
+    cacheManager.readyState = true;
+  })
+  function checkCache(){
+    const bytes = fastFolderSizeSync(cacheRootFolderName)
+    console.log('cache fullness: ',(bytes/MAX_MEGABYTE_SIZE)*100,"%")
+
+    if(bytes > MAX_MEGABYTE_SIZE){
+        console.log('delete cache')
+        cacheManager.wipeAndRestart();
+      }
+  }
+
   const sql = (params, query) => {
 
     let simplifyStatement;
@@ -105,6 +125,7 @@ module.exports = function (fastify, opts, next) {
       }
     }
   }
+
   fastify.route({
     method: 'GET',
     url: '/mvt/:table/:z/:x/:y',
@@ -113,13 +134,14 @@ module.exports = function (fastify, opts, next) {
       fastify.pg.connect(onConnect)
 
       function onConnect(err, client, release) {
-      //	console.log(cache.list())
         if (err)
           return reply.send({
             statusCode: 500,
             error: 'Internal Server Error',
             message: 'unable to connect to database server'
           })
+
+       
           
         const p = request.params;
         const q = request.query;
@@ -131,17 +153,17 @@ module.exports = function (fastify, opts, next) {
         const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
         const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}`
 
-        if (cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache === 'true')) {
+        console.log('ready: ', cacheManager.readyState)
+        if ( cacheManager.readyState && tileCache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache === 'true')) {
           console.log('cached mvt')
           const mvt = fs.readFileSync(tilePathRel);
-          //console.log(cache.get())
+
           release()
           reply
           .headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'true' })
-          .send(mvt)
+          .send(mvt);    
 
         } else {
-          console.log('not cached')
           client.query(sql(request.params, request.query), function onResult(
             err,
             result
@@ -152,16 +174,16 @@ module.exports = function (fastify, opts, next) {
             } else {
               const mvt = result.rows[0].mvt;
               if (mvt.length === 0) {
-                if (!fs.existsSync(tileFolder)) {
-                  console.log('making empty folder')
+                if (!fs.existsSync(tileFolder) &&  cacheManager.readyState) {
                   fs.mkdir(tileFolder, { recursive: true }, function (err) {
                     console.log(err)
                   });
                 }
-         
+          
                 reply.code(204)
               } else {
                 try {
+                  if( cacheManager.readyState){
                   if (!fs.existsSync(tileFolder)) {
                     fs.mkdirSync(tileFolder, { recursive: true });
                   }
@@ -171,13 +193,16 @@ module.exports = function (fastify, opts, next) {
                       return console.log(err);
                     }
                   });
+                }
                 } catch (e) {
                   console.log(e);
                   console.log('\r\n')
                 }
               }
-              console.log(cache.data)
               reply.headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'false' }).send(mvt)
+              if( cacheManager.readyState){
+                checkCache(tileCache)
+              }
             }
           })
         }

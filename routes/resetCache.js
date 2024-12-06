@@ -1,8 +1,3 @@
-const cp = require("child_process");
-//const recache = require("recache")
-const cache = require('../cache');
-const { v4: uuidv4 } = require('uuid');
-
 const schema = {
     description: 'Reset Cache',
     tags: ['meta'],
@@ -15,7 +10,6 @@ const schema = {
 }
 
 const url = `/reset-cache`;
-console.log(require('../cache').CACHE_ID)
 
 module.exports = function (fastify, opts, next) {
 
@@ -25,9 +19,9 @@ module.exports = function (fastify, opts, next) {
         schema: schema,
         preHandler: (request, reply, done) => {
             const apiKey = request.headers['x-api-key'];
-            const correctApiKey = process.env.PASSWORD;
+            const correctApiKey = cacheManager.authenticate(apiKey);
         
-            if (apiKey !== correctApiKey) {
+            if (!correctApiKey) {
                 reply.code(401).send('Authorization required');
             } else {
                 console.log('Authorization successful');
@@ -36,14 +30,11 @@ module.exports = function (fastify, opts, next) {
             done();
         },
         handler: async function (request, reply) {
-
-            require('../cache').CACHE_ID = uuidv4();
-            cache.destroy();
-            cache.start();
-
+            const cacheManager = require("../tileCacheManager");
+            cacheManager.wipeAndRestart();
             reply
                 .code(200)
-                .send('success')
+                .send('Depricated, will revisit')
         }
     })
     next()

@@ -4,17 +4,34 @@ const fs = require("fs-extra");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-// Uncomment to generate password on startup:
-// async function createHash(_pass){
-//     const salt = await bcrypt.genSalt(saltRounds);
-//     const hash = await bcrypt.hash(_pass, salt)
-//     return hash
-// }
+let hashedPassword = process.env.PASS_HASH;
+const cliPWArray =  process.argv.filter(a=>a.includes('-PW'));
+const cliPassword = cliPWArray.length === 0 ? null: cliPWArray[0].replace('-PW=','')
 
-// createHash('cUnY2025!!').then((hash)=>{
-//     console.log(hash) //COPY AND STORE THIS IN .ENV
+if(!hashedPassword && !cliPassword ){
+    console.error('You need to set up a password for this deployment by running the server at least once with the -PW=[password] flag');
+    process.exit(1);
+}
 
-// })
+async function createHash(_pass){
+    const salt = await bcrypt.genSalt(saltRounds);
+    const hash = await bcrypt.hash(_pass, salt)
+    return hash
+}
+
+if(cliPassword){
+    if(hashedPassword){
+        console.error('A password has already been set. Delete the hashed password from the .env and run again');
+        process.exit(1);
+    }
+    createHash(cliPassword).then((hashPass)=>{
+        hashedPassword = hashPass;
+        fs.appendFileSync('./.env', `\nPASS_HASH=${hashedPassword}`);
+        console.log('Password set! Run the script again without the -PW flag');
+        process.exit(0);
+    })
+}
+
 
 // THIS WILL COMPARE PASSWORD FROM API KEY:
 // https://www.freecodecamp.org/news/how-to-hash-passwords-with-bcrypt-in-nodejs/
@@ -48,7 +65,9 @@ let tileCache = recache(cacheRootFolderName, {
     console.log('mvt Cache ready!');
   });
 
-  function wipeAndRestart(){
+  async function wipeAndRestart(_password){
+    const authenticated = await bcrypt.compare(_password,hashedPassword);
+    console.log(authenticated)
     tileCache.stop();
     readyState = false;
      try{

@@ -11,6 +11,7 @@ module.exports = function (fastify, opts, next) {
   const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
   let tileCache = cacheManager.tileCache;
+  const cacheID=cacheManager.CACHE_ID
 
   const bToMb = 1000000;
   const MAX_MEGABYTE_SIZE = (process.env.MAX_TILE_CACHE_SIZE || 500) * bToMb;//mb times 1,000,000 = bytes
@@ -148,7 +149,7 @@ module.exports = function (fastify, opts, next) {
         const geom_column = request.query.geom_column;
         
         const cols = Object.values(q).join(',').split(',').map(k=>k[0]).join('');
-       
+          
         const tilePathRoot = `<root>/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
         const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
         const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}`

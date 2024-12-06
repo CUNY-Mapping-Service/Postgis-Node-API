@@ -32,25 +32,6 @@ if(cliPassword){
     })
 }
 
-
-// THIS WILL COMPARE PASSWORD FROM API KEY:
-// https://www.freecodecamp.org/news/how-to-hash-passwords-with-bcrypt-in-nodejs/
-// bcrypt.compare('password123','example_hash.$2b$12bqDeKOkRdAqezZ.yGa9RGHunJyaseC.fPYQ3qIAA0$uKgd12DaY.f', (err, result) => {
-//     if (err) {
-//         // Handle error
-//         console.error('Error comparing passwords:', err);
-//         return;
-//     }
-
-// if (result) {
-//     // Passwords match, authentication successful
-//     console.log('Passwords match! User authenticated.');
-// } else {
-//     // Passwords don't match, authentication failed
-//     console.log('Passwords do not match! Authentication failed.');
-// }
-// });
-
 const CACHE_ID = uuidv4();
 let readyState = false;
 
@@ -65,9 +46,11 @@ let tileCache = recache(cacheRootFolderName, {
     console.log('mvt Cache ready!');
   });
 
-  async function wipeAndRestart(_password){
-    const authenticated = await bcrypt.compare(_password,hashedPassword);
-    console.log(authenticated)
+  async function authenticate(_password){
+   return await bcrypt.compare(_password,hashedPassword);
+  }
+
+ function wipeAndRestart(){
     tileCache.stop();
     readyState = false;
      try{
@@ -90,6 +73,7 @@ let tileCache = recache(cacheRootFolderName, {
      }catch(e){
        console.log(e)
      }
+     
   }
 
-module.exports = { CACHE_ID,tileCache, readyState, wipeAndRestart }
+module.exports = { CACHE_ID,tileCache, readyState, wipeAndRestart,authenticate }

@@ -19,9 +19,9 @@ module.exports = function (fastify, opts, next) {
         schema: schema,
         preHandler: (request, reply, done) => {
             const apiKey = request.headers['x-api-key'];
-            const correctApiKey = process.env.PASSWORD;
+            const correctApiKey = cacheManager.authenticate(apiKey);
         
-            if (apiKey !== correctApiKey) {
+            if (!correctApiKey) {
                 reply.code(401).send('Authorization required');
             } else {
                 console.log('Authorization successful');
@@ -30,10 +30,6 @@ module.exports = function (fastify, opts, next) {
             done();
         },
         handler: async function (request, reply) {
-            //make cache id accessible from mvt
-            //require('../cache').CACHE_ID = uuidv4();
-            //cache.destroy();
-            //cache.start();
             const cacheManager = require("../tileCacheManager");
             cacheManager.wipeAndRestart();
             reply

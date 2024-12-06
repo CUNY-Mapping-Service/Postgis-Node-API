@@ -13,7 +13,7 @@ module.exports = function (fastify, opts, next) {
   let tileCache = cacheManager.tileCache;
 
   const bToMb = 1000000;
-  const MAX_MEGABYTE_SIZE = .25 * bToMb;//Bytes times 1,000,000 = mb
+  const MAX_MEGABYTE_SIZE = (process.env.MAX_TILE_CACHE_SIZE || 500) * bToMb;//mb times 1,000,000 = bytes
 
   tileCache.on("ready",()=>{
     console.log('ready again')

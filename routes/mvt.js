@@ -1,30 +1,23 @@
 
 const fs = require("fs-extra");
 const fastFolderSizeSync = require('fast-folder-size/sync')
-const recache = require("recache");
-const { v4: uuidv4 } = require('uuid');
-
+const cacheManager = require("../tileCacheManager");
 // create route
 module.exports = function (fastify, opts, next) {
 
-  const cacheID = uuidv4();
+ 
   const _args = process.argv.slice(2);
   const deployPath = _args[0] || '.';
   const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
-  let tileCache = recache(cacheRootFolderName, {
-    persistent: false,                           // Make persistent cache
-    store: false                                 // Enable file content storage
-  }, (cache) => {
-    console.log('mvt Cache ready!');
-  });
+  let tileCache = cacheManager.tileCache;
 
   const bToMb = 1000000;
   const MAX_MEGABYTE_SIZE = .25 * bToMb;//Bytes times 1,000,000 = mb
-  let ready = false;
+
   tileCache.on("ready",()=>{
     console.log('ready again')
-    ready = true;
+    cacheManager.readyState = true;
   })
   function checkCache(){
     const bytes = fastFolderSizeSync(cacheRootFolderName)
@@ -32,30 +25,7 @@ module.exports = function (fastify, opts, next) {
 
     if(bytes > MAX_MEGABYTE_SIZE){
         console.log('delete cache')
-       tileCache.stop();
-       ready = false;
-        try{
-          const files = fs.readdirSync(cacheRootFolderName).map(f=>`${cacheRootFolderName}/${f}`)
-
-              for(let f=0;f<files.length;f++){
-                console.log(files[f])
-                if(fs.existsSync(files[f])){
-                  console.log("deleting")
-                  fs.emptyDirSync(files[f])
-                  fs.rmdirSync(files[f])
-                }else{
-                  console.log("doesn't exist")
-                }
-               
-              }
- 
-          console.log('restart cache')
-          tileCache.start();
-        }catch(e){
-          console.log(e)
-        }
-       
-
+        cacheManager.wipeAndRestart();
       }
   }
 
@@ -183,8 +153,8 @@ module.exports = function (fastify, opts, next) {
         const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
         const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}`
 
-        console.log('ready: ',ready)
-        if (ready && tileCache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache === 'true')) {
+        console.log('ready: ', cacheManager.readyState)
+        if ( cacheManager.readyState && tileCache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache === 'true')) {
           console.log('cached mvt')
           const mvt = fs.readFileSync(tilePathRel);
 
@@ -204,7 +174,7 @@ module.exports = function (fastify, opts, next) {
             } else {
               const mvt = result.rows[0].mvt;
               if (mvt.length === 0) {
-                if (!fs.existsSync(tileFolder) && ready) {
+                if (!fs.existsSync(tileFolder) &&  cacheManager.readyState) {
                   fs.mkdir(tileFolder, { recursive: true }, function (err) {
                     console.log(err)
                   });
@@ -213,7 +183,7 @@ module.exports = function (fastify, opts, next) {
                 reply.code(204)
               } else {
                 try {
-                  if(ready){
+                  if( cacheManager.readyState){
                   if (!fs.existsSync(tileFolder)) {
                     fs.mkdirSync(tileFolder, { recursive: true });
                   }
@@ -230,7 +200,7 @@ module.exports = function (fastify, opts, next) {
                 }
               }
               reply.headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'false' }).send(mvt)
-              if(ready){
+              if( cacheManager.readyState){
                 checkCache(tileCache)
               }
             }

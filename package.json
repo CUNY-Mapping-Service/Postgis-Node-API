@@ -17,6 +17,7 @@
     "@fastify/static": "^6.4.1",
     "@fastify/swagger": "^7.4.1",
     "axios": "^0.27.2",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.0.1",
     "exceljs": "^4.4.0",
     "fast-folder-size": "^2.3.0",

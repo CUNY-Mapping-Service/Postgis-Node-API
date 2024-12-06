@@ -34,7 +34,8 @@ module.exports = function (fastify, opts, next) {
             //require('../cache').CACHE_ID = uuidv4();
             //cache.destroy();
             //cache.start();
-
+            const cacheManager = require("../tileCacheManager");
+            cacheManager.wipeAndRestart();
             reply
                 .code(200)
                 .send('Depricated, will revisit')

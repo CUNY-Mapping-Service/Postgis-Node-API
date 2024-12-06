@@ -1,22 +1,12 @@
 ///DEPRICATED
 const fs = require("fs-extra");
-const recache = require("recache")
-const _args = process.argv.slice(2);
-const deployPath = _args[0] || '.';
 
-const enableCache= false;
 
-const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
-console.log('cacheRootFolderName: ',cacheRootFolderName)
+
 let tableNames = {}
 let columnNames = {}
 
-const cache = recache(cacheRootFolderName, {
-  persistent: false,                           // Make persistent cache
-  store: false                                 // Enable file content storage
-}, (cache) => {
-  console.log('mvt schema Cache ready!');
-});
+
 
 const qc = require("node-cache");
 const queryCache = new qc();
@@ -117,14 +107,8 @@ module.exports = function (fastify, opts, next) {
           const tilePathRoot = `<root>/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}/${p.y}.mvt`
           const tilePathRel = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}/${p.y}.mvt`
           const tileFolder = `${cacheRootFolderName}/${p.schema}-schema-${request.query.columns}-${extraCacheString}/${p.z}/${p.x}`
-          
-          if (enableCache && cache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache==='true')) {
-            console.log(`schema cache hit: ${tilePathRel}`)
-            const mvt = cache.get(tilePathRoot).content;
-            release()
-            reply.headers({'Content-Type': 'application/x-protobuf','cached-tile':'true'}).send(mvt)
-          } else {
-            console.log(`schema cache miss: ${tilePathRel}`)
+
+           // console.log(`schema cache miss: ${tilePathRel}`)
             client.query(sql(request.params, request.query), function onResult(
               err,
               result
@@ -169,7 +153,7 @@ module.exports = function (fastify, opts, next) {
 
               }
             })
-          }
+          
         }
 
       })

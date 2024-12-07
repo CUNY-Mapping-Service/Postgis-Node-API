@@ -1,9 +1,9 @@
-const qc = require("node-cache");
-
+//const qc = require("node-cache");
+//12/7/2024 CACHE NOT WORKING BUT ALSO UNNECESSARY. CAN PROBABLY BE REMOVED COMPLETELY
 
 // create route
 module.exports = function (fastify, opts, next) {
-  const queryCache = new qc();
+  //const queryCache = new qc();
 // route query
 const sql = (params, query) => {
   const [x, y, srid] = params.point.match(/^((-?\d+\.?\d+)(,-?\d+\.?\d+)(,[0-9]{4}))/)[0].split(',')
@@ -141,28 +141,28 @@ const schema = {
           "error": "Internal Server Error",
           "message": "unable to connect to database server"
         })
-        const key = request.url
-        const cachedResp = queryCache.get(key);
-        const size = queryCache.getStats().ksize+queryCache.getStats().vsize;
-        const CACHE_SIZE_LIMIT = 25000;
-        if(size > CACHE_SIZE_LIMIT){
-          queryCache.flushAll()
-        }
-        if (typeof cachedResp !== 'undefined') {
-          release();
-          reply.send(cachedResp);
-        } else {
+        // const key = request.url
+        // const cachedResp = queryCache.get(key);
+        // const size = queryCache.getStats().ksize+queryCache.getStats().vsize;
+        // const CACHE_SIZE_LIMIT = 25000;
+        // if(size > CACHE_SIZE_LIMIT){
+        //   queryCache.flushAll()
+        // }
+        // if (typeof cachedResp !== 'undefined') {
+        //   release();
+        //   reply.send(cachedResp);
+        // } else {
           client.query(
             sql(request.params, request.query),
             function onResult(err, result) {
               release()
               reply.send(err || result.rows)
-              if (result && typeof result !== 'undefined' && result.rows){
-                queryCache.set(key, result.rows, 900)
-              }
+              // if (result && typeof result !== 'undefined' && result.rows){
+              //   queryCache.set(key, result.rows, 900)
+              // }
             }
           )
-        }
+       // }
       }
     }
   })

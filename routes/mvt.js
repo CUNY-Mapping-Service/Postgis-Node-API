@@ -10,16 +10,10 @@ module.exports = function (fastify, opts, next) {
   const deployPath = _args[0] || '.';
   const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
-  let tileCache = cacheManager.tileCache;
-  const cacheID=cacheManager.CACHE_ID
-
   const bToMb = 1000000;
   const MAX_MEGABYTE_SIZE = (process.env.MAX_TILE_CACHE_SIZE || 500) * bToMb;//mb times 1,000,000 = bytes
 
-  tileCache.on("ready",()=>{
-    console.log('ready again')
-    cacheManager.readyState = true;
-  })
+
   function checkCache(){
     const bytes = fastFolderSizeSync(cacheRootFolderName)
     console.log('cache fullness: ',(bytes/MAX_MEGABYTE_SIZE)*100,"%")
@@ -150,13 +144,15 @@ module.exports = function (fastify, opts, next) {
         
         const cols = Object.values(q).join(',').split(',').map(k=>k[0]).join('');
           
-        const tilePathRoot = `<root>/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
-        const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}/${p.y}.mvt`
-        const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}-${cacheID}/${p.z}/${p.x}`
+        const tilePathRoot = `<root>/${p.table}-${geom_column}-${cols}/${p.z}/${p.x}/${p.y}.mvt`
+        const tilePathRel = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}/${p.z}/${p.x}/${p.y}.mvt`
+        const tileFolder = `${cacheRootFolderName}/${p.table}-${geom_column}-${cols}/${p.z}/${p.x}`
 
         console.log('ready: ', cacheManager.readyState)
-        if ( cacheManager.readyState && tileCache.has(tilePathRoot) && (!request.query.useCache || request.query.useCache === 'true')) {
+        const fileExists = cacheManager.checkDisk(tilePathRoot);
+        if ( fileExists && (!request.query.useCache || request.query.useCache === 'true')) {
           console.log('cached mvt')
+          console.log('rel ',tilePathRel)
           const mvt = fs.readFileSync(tilePathRel);
 
           release()
@@ -173,6 +169,7 @@ module.exports = function (fastify, opts, next) {
             if (err) {
               reply.send(err)
             } else {
+              cacheManager.addTile(tilePathRoot);
               const mvt = result.rows[0].mvt;
               if (mvt.length === 0) {
                 if (!fs.existsSync(tileFolder) &&  cacheManager.readyState) {
@@ -202,7 +199,7 @@ module.exports = function (fastify, opts, next) {
               }
               reply.headers({ 'Content-Type': 'application/x-protobuf', 'cached-tile': 'false' }).send(mvt)
               if( cacheManager.readyState){
-                checkCache(tileCache)
+                checkCache()
               }
             }
           })

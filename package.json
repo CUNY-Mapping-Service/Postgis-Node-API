@@ -23,11 +23,9 @@
     "fast-folder-size": "^2.3.0",
     "fastify": "^4.3.0",
     "fs-extra": "^10.1.0",
-    "pg": "^8.7.3",
-    "uuid": "^9.0.0"
+    "pg": "^8.7.3"
   },
   "devDependencies": {
-    "node-cache": "^5.1.2",
-    "recache": "^0.6.0"
+    "node-cache": "^5.1.2"
   }
 }

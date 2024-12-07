@@ -1,12 +1,11 @@
-const { v4: uuidv4 } = require('uuid');
-const recache = require("recache");
 const fs = require("fs-extra");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 let hashedPassword = process.env.PASS_HASH;
 const cliPWArray =  process.argv.filter(a=>a.includes('-PW'));
-const cliPassword = cliPWArray.length === 0 ? null: cliPWArray[0].replace('-PW=','')
+const cliPassword = cliPWArray.length === 0 ? null: cliPWArray[0].replace('-PW=','');
+const tileList = [];
 
 if(!hashedPassword && !cliPassword ){
     console.error('You need to set up a password for this deployment by running the server at least once with the -PW=[password] flag');
@@ -32,26 +31,27 @@ if(cliPassword){
     })
 }
 
-const CACHE_ID = uuidv4();
-let readyState = false;
+let readyState = true;
 
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '.';
 const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
 
-let tileCache = recache(cacheRootFolderName, {
-    persistent: false,                           // Make persistent cache
-    store: false                                 // Enable file content storage
-  }, (cache) => {
-    console.log('mvt Cache ready!');
-  });
 
   async function authenticate(_password){
    return await bcrypt.compare(_password,hashedPassword);
   }
 
+  function checkDisk(_tilePath){
+    return tileList.indexOf(_tilePath) > -1;
+  }
+
+  function addTile(_tilePath){
+    tileList.push(_tilePath);
+  }
+
  function wipeAndRestart(){
-    tileCache.stop();
+   
     readyState = false;
      try{
        const files = fs.readdirSync(cacheRootFolderName).map(f=>`${cacheRootFolderName}/${f}`)
@@ -67,13 +67,13 @@ let tileCache = recache(cacheRootFolderName, {
              }
             
            }
-
+           tileList.length = 0;
        console.log('restart cache')
-       tileCache.start();
+      
      }catch(e){
        console.log(e)
      }
      
   }
 
-module.exports = { CACHE_ID,tileCache, readyState, wipeAndRestart,authenticate }
+module.exports = {addTile, checkDisk, readyState, wipeAndRestart,authenticate }

@@ -8,8 +8,8 @@ let columnNames = {}
 
 
 
-const qc = require("node-cache");
-const queryCache = new qc();
+// const qc = require("node-cache");
+// const queryCache = new qc();
 
 // create route
 module.exports = function (fastify, opts, next) {
@@ -30,7 +30,7 @@ module.exports = function (fastify, opts, next) {
 
         const key = 'table-list-' + request.params.schema;
 
-        const cachedResp = queryCache.get(key);
+        //const cachedResp = queryCache.get(key);
 
         if (typeof cachedResp !== 'undefined') {
           tableNames[request.params.schema] = cachedResp;
@@ -54,7 +54,7 @@ module.exports = function (fastify, opts, next) {
             } else {
               tableNames[p.schema] = result.rows.map(t => t.table_name);
               console.log('made a table request')
-              queryCache.set(key, tableNames[p.schema], 300)
+              //queryCache.set(key, tableNames[p.schema], 300)
               makeColumnRequest(client, request);
             }
           })

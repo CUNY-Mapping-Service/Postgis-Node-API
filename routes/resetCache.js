@@ -10,7 +10,7 @@ const schema = {
 }
 
 const url = `/reset-cache`;
-
+ const cacheManager = require("../tileCacheManager");
 module.exports = function (fastify, opts, next) {
 
     fastify.route({
@@ -30,11 +30,11 @@ module.exports = function (fastify, opts, next) {
             done();
         },
         handler: async function (request, reply) {
-            const cacheManager = require("../tileCacheManager");
+           
             cacheManager.wipeAndRestart();
             reply
                 .code(200)
-                .send('Depricated, will revisit')
+                .send('successfully deleted tile cache!')
         }
     })
     next()

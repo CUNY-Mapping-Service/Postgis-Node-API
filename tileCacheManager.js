@@ -1,11 +1,13 @@
-const fs = require("fs-extra");
+
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 let hashedPassword = process.env.PASS_HASH;
 const cliPWArray =  process.argv.filter(a=>a.includes('-PW'));
 const cliPassword = cliPWArray.length === 0 ? null: cliPWArray[0].replace('-PW=','');
-const tileList = [];
+const bToMb = 1000000;
+const MAX_MEGABYTE_SIZE = (process.env.MAX_TILE_CACHE_SIZE || 500) * bToMb;//mb times 1,000,000 = bytes
+const memCache = {}
 
 if(!hashedPassword && !cliPassword ){
     console.error('You need to set up a password for this deployment by running the server at least once with the -PW=[password] flag');
@@ -31,49 +33,43 @@ if(cliPassword){
     })
 }
 
-let readyState = true;
-
-const _args = process.argv.slice(2);
-const deployPath = _args[0] || '.';
-const cacheRootFolderName = `${deployPath}${process.env.CACHE_FOLDER}` || 'tilecache';
-
-
   async function authenticate(_password){
    return await bcrypt.compare(_password,hashedPassword);
   }
 
-  function checkDisk(_tilePath){
-    return tileList.indexOf(_tilePath) > -1;
+  function addTile(_key, _mvt){
+    memCache[_key] = _mvt;
   }
 
-  function addTile(_tilePath){
-    tileList.push(_tilePath);
+  function getCachedTile(_key){
+    return memCache[_key] || false;
   }
 
- function wipeAndRestart(){
-   
-    readyState = false;
-     try{
-       const files = fs.readdirSync(cacheRootFolderName).map(f=>`${cacheRootFolderName}/${f}`)
-
-           for(let f=0;f<files.length;f++){
-             console.log(files[f])
-             if(fs.existsSync(files[f])){
-               console.log("deleting")
-               fs.emptyDirSync(files[f])
-               fs.rmdirSync(files[f])
-             }else{
-               console.log("doesn't exist")
-             }
-            
-           }
-           tileList.length = 0;
-       console.log('restart cache')
-      
-     }catch(e){
-       console.log(e)
-     }
-     
+  function clearPctOfCache(_pct){
+    const _fract = _pct/100;
+    let keys = Object.keys(memCache);
+    let _len = keys.length;
+    keys
+    .splice(_len- Math.round(_len*_fract))
+    .forEach((_key)=>{
+      if(memCache[_key]){
+        delete memCache[_key];
+      }
+    });
   }
 
-module.exports = {addTile, checkDisk, readyState, wipeAndRestart,authenticate }
+  function manageLimit(){
+    const limit = 2000;
+    const pctPerRemoval = 25;
+    const numCachedTiles = Object.keys(memCache).length;
+    
+    if(numCachedTiles > limit){ //TODO: Put limit, and delete amnt in .env!
+      clearPctOfCache(pctPerRemoval);//TODO: put clear amount in .env
+      console.log('cleared cache. tiles left: ',Object.keys(memCache).length)
+    }else{
+      console.log('cache is ',(numCachedTiles/limit)*100 + ' pct full' )
+    }
+  }
+
+
+module.exports = {addTile, getCachedTile,authenticate,clearPctOfCache,manageLimit }

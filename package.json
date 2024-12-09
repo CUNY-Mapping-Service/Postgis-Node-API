@@ -23,6 +23,7 @@
     "fast-folder-size": "^2.3.0",
     "fastify": "^4.3.0",
     "fs-extra": "^10.1.0",
+    "object-sizeof": "^2.6.5",
     "pg": "^8.7.3"
   },
   "devDependencies": {

@@ -31,7 +31,7 @@ module.exports = function (fastify, opts, next) {
         },
         handler: async function (request, reply) {
            
-            cacheManager.wipeAndRestart();
+            cacheManager.clearPctOfCache(100);
             reply
                 .code(200)
                 .send('successfully deleted tile cache!')

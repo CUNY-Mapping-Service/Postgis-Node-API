@@ -2,10 +2,28 @@ const xl = require('exceljs');
 const path = require('path');
 const fs = require("fs-extra");
 const { type } = require('os');
-const processDistrictPg1 = require('./excel_helpers/processDistrictPg1');
-const processAddressBufferPg1 = require('./excel_helpers/processAddressBufferPg1');
-const page2 = require('./excel_helpers/page2');
-const addMapImage = require('./excel_helpers/addMapImage');
+
+const { templateTypes } = require('./excel_helpers/templateNameKeys');
+const ExcelDistSiteNoFac = require('./excel_helpers/ExcelDistSiteNoFac');
+const ExcelDistSiteFac = require('./excel_helpers/ExcelDistSiteFac');
+const ExcelDistOnly = require('./excel_helpers/ExcelDistOnly');
+const ExcelSiteLocation = require('./excel_helpers/ExcelSiteLocation');
+
+function createBuilder(templateType,_data){
+  switch(templateType){
+    case templateTypes.excelDistSiteNoFac:
+      console.log('creating ExcelDistSiteNoFac')
+      return new ExcelDistSiteNoFac(templateType,_data);
+    case templateTypes.excelDistSiteFac:
+      return new ExcelDistSiteFac(templateType,_data);
+    case templateTypes.excelDistOnly:
+      return new ExcelDistOnly(templateType,_data);
+    case templateTypes.excelSiteLocation:
+      return new ExcelSiteLocation(templateType,_data);
+    default:
+      return -1
+  }
+}
 
 module.exports = function (fastify, opts, next) {
   const schema = {
@@ -24,72 +42,54 @@ module.exports = function (fastify, opts, next) {
     url: '/generateExcel',
     schema: schema,
     handler: async (request, reply) => {
-
-      const workbook = new xl.Workbook();
-      const templateFile = path.join(__dirname, 'dhs_template.xlsx')
-      let doc;
-      try {
-        doc = await workbook.xlsx.readFile(templateFile)
-      } catch (e) {
-        console.log(e)
-        reply.send({
-          "statusCode": 500,
-          "error": "Internal Server Error",
-          "message": JSON.parse(e)
-        });
-      }
-
-      const worksheet1 = doc.worksheets[0];
-      const worksheet2 = doc.worksheets[1];
-
       const _data = request.body.data;
-      const isDistrict = (_data?.type !== 'property' && _data?.processedDistricts && _data?.processedDistricts[_data.type] && typeof _data?.processedDistricts[_data.type] !== 'undefined');
+      const templateType = _data.reportType;
+      console.log('creating builder for ',templateType)
+      const excelBuilder = createBuilder(templateType,_data);
+      console.log('builder created')
+      await excelBuilder.init();
+      console.log('builder initialized')
+      if(excelBuilder === -1){
+          console.log(`Invalid report selection method: ${templateType}`);
+          reply.send({
+            "statusCode": 500,
+            "error": "Internal Server Error",
+            "message": `Invalid report selection method: ${templateType}`
+          });
+          return
+      }
 
       try {
-        if (isDistrict) {
-          processDistrictPg1(worksheet1, _data);
-        } else {
-          processAddressBufferPg1(worksheet1, _data)
+        excelBuilder.build();
+      } catch (e) {
+        console.log('Error after build');
+        console.log(e);
+        reply.send({
+          "statusCode": 500,
+          "error": "Internal Server Error",
+          "message": JSON.parse(e)
+        });
+      }
+
+      try {
+        const filename = await excelBuilder.writeFile();
+        if(filename === -1){
+          console.log('Filename not returned from writeFile');
+          reply.send({
+            "statusCode": 500,
+            "error": "Internal Server Error",
+            "message": JSON.parse(e)
+          });
         }
-      } catch (e) {
-        console.log(e)
-        reply.send({
-          "statusCode": 500,
-          "error": "Internal Server Error",
-          "message": JSON.parse(e)
-        });
-      }
-      try {
-        addMapImage(worksheet1, _data,workbook)
-      } catch (e) {
-        console.log(e)
-        reply.send({
-          "statusCode": 500,
-          "error": "Internal Server Error",
-          "message": JSON.parse(e)
-        });
-      }
-
-      try {
-        page2(worksheet2,_data,isDistrict);
-      } catch (e) {
-        console.log(e)
-        reply.send({
-          "statusCode": 500,
-          "error": "Internal Server Error",
-          "message": JSON.parse(e)
-        });
-      }
-
-      const _date = new Date();
-
-      const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth() + 1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
-      const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
-      try {
-        await doc.xlsx.writeFile(outputFilename);
         reply.send(filename)
       } catch (e) {
-        console.log(e)
+        console.log('Error after writeFile');
+        console.log(e);
+        reply.send({
+          "statusCode": 500,
+          "error": "Internal Server Error",
+          "message": JSON.parse(e)
+        });
       }
     }
   })

@@ -1,9 +1,5 @@
-module.exports = function(worksheet,_data, isDistrict){
-    if(isDistrict){
-        worksheet.getCell('A1').value = `Facilities and shelters in ${_data?.processedDistricts[_data.type]?.name}`;
-    }else{
-        worksheet.getCell('A1').value = `Facilities and shelters within 1/2 Mile of ${_data.processedData?.address}, ${_data.processedData?.propertyDetails?.zipcode}`;
-    }
+module.exports = function(worksheet,_data, _type){
+
     const shelters = _data?.bufferedProperties?.shelters;
     const facs = _data?.bufferedProperties?.facilities;
     const sheltersInDistrict = _data?.containedShelters;

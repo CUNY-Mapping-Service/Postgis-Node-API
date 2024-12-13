@@ -1,13 +1,13 @@
-module.exports = function (worksheet, _data) {
-    console.log('district page 1')
+module.exports = function (worksheet, _data, _type) {
+    const templateNameKeys = require('./templateNameKeys');
     const shelters = _data?.bufferedProperties?.shelters;
     const facs = _data?.bufferedProperties?.facilities;
 
-    if (shelters.length > 0 || facs.length > 0) {
-        worksheet.getCell('A1').value = `Facilities in ${_data?.processedDistricts[_data.type]?.name}`;
-    }else{
-        worksheet.getCell('A1').value = _data?.processedDistricts[_data.type]?.name;
-    }
+    // if (shelters.length > 0 || facs.length > 0) {
+    //     worksheet.getCell('A1').value = `Facilities in ${_data?.processedDistricts[_data.type]?.name}`;
+    // }else{
+        worksheet.getCell('A1').value += _data?.processedDistricts[_data.type]?.name;
+   // }
 
     worksheet.getCell('A2').value = '';
 

@@ -7,15 +7,15 @@ This is the most common use case, when someone enters an address or clicks the m
 */
 
 const ExcelBuilder = require('./ExcelBuilder');
-const processAddressBufferPg1 = require('./processAddressBufferPg1');
-const page2 = require('./page2');
+const page1 = require('./processAddressPage1');
+const page2 = require('./processAddressPage2');
 
  class ExcelSiteLocation extends ExcelBuilder{
     constructor(type,data){super(type,data)}
     build(){
         super.build();
-        processAddressBufferPg1(this.worksheet1, this.data, type);
-        page2(this.worksheet2, this.data, type);
+        page1(this.worksheet1, this.data, this.type);
+        page2(this.worksheet2, this.data, this.type);
     }
 } 
 

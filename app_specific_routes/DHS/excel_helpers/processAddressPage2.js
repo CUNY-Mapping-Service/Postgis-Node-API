@@ -1,9 +1,22 @@
 module.exports = function(worksheet,_data, _type){
 
-    const shelters = _data?.bufferedProperties?.shelters;
-    const facs = _data?.bufferedProperties?.facilities;
-    const sheltersInDistrict = _data?.containedShelters;
+  const boroughCodesToNames = {
+    'QN': 'Queens',
+    'MN': 'Manhattan',
+    'BK': 'Brooklyn',
+    'BX': 'Bronx',
+    'SI': 'Staten Island'
+}
 
+const boroughName = boroughCodesToNames[_data?.processedPropertyData?.propertyDetails?.borough];
+
+  worksheet.getCell('A1').value = 
+  worksheet.getCell('A1').value
+  .replace('%ADDRESS%', _data?.processedPropertyData?.address)
+  .replace('%BOROUGH%', boroughName)
+
+    const shelters = _data?.bufferedFacilitiesAndShelters?.shelters;
+    const facs = _data?.bufferedFacilitiesAndShelters?.facilities;
 
     if (facs && typeof facs !== 'undefined' && facs.length && facs.length > 0) {
       for(let f=facs.length-1;f>=0;f--){
@@ -21,7 +34,7 @@ module.exports = function(worksheet,_data, _type){
     if (shelters && typeof shelters !== 'undefined' && shelters.length && shelters.length > 0) {
       shelters.forEach(shelter => {
         worksheet.insertRow(8, [
-          'S',
+          shelter.facility_cd,
           shelter.facility_name,
           shelter.address,
           shelter.facility_type,
@@ -29,15 +42,5 @@ module.exports = function(worksheet,_data, _type){
         ])
       });
     }
-    if (sheltersInDistrict && typeof sheltersInDistrict !== 'undefined' && sheltersInDistrict.length && sheltersInDistrict.length > 0) {
-      sheltersInDistrict.forEach(shelter => {
-        worksheet.insertRow(8, [
-          _data.processedDistricts[_data.type]?.name ? _data.processedDistricts[_data.type].name : '',
-          shelter.facility_name,
-          shelter.address,
-          shelter.facility_type,
-          `${shelter.designated_units_beds_number} beds`
-        ])
-      });
-    }
+   
 }

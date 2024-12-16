@@ -19,13 +19,13 @@ config.swagger.info.description = config.swagger.info.description
  // console.log(process.env)
 
 
-const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || `${deployPath}tilecache`;
-console.log('folder set to: ',cacheFolder);
+// const cacheFolder =`${deployPath}${process.env.CACHE_FOLDER}` || `${deployPath}tilecache`;
+// console.log('folder set to: ',cacheFolder);
 
-if (!fs.existsSync(cacheFolder)) {
-  console.log('creating folder: ',cacheFolder)
-  fs.mkdirSync(cacheFolder, { recursive: true });
-}
+// if (!fs.existsSync(cacheFolder)) {
+//   console.log('creating folder: ',cacheFolder)
+//   fs.mkdirSync(cacheFolder, { recursive: true });
+// }
 
 if(process.env.LOG==='FALSE'){
   console.log=()=>{}

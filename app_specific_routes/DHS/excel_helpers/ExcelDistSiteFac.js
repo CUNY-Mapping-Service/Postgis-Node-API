@@ -8,15 +8,15 @@ they select PRINT from one of the selected districts.
 */
 
 const ExcelBuilder = require('./ExcelBuilder');
-const processDistrictPg1 = require('./processDistrictPg1');
-const page2 = require('./page2');
+const page1 = require('./processDistrictPage1');
+const page2 = require('./processDistrictPage2');
 
 class ExcelDistSiteFac extends ExcelBuilder{
     constructor(type,data){super(type,data)}
     build(){
         super.build();
-        processDistrictPg1(this.worksheet1, this.data, type);
-        page2(this.worksheet2, this.data, type);
+        page1(this.worksheet1, this.data, this.type);
+        page2(this.worksheet2, this.data, this.type);
     }
 } 
 

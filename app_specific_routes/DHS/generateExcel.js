@@ -12,10 +12,9 @@ const ExcelSiteLocation = require('./excel_helpers/ExcelSiteLocation');
 function createBuilder(templateType,_data){
   switch(templateType){
     case templateTypes.excelDistSiteNoFac:
-      console.log('creating ExcelDistSiteNoFac')
-      return new ExcelDistSiteNoFac(templateType,_data);
+      //return new ExcelDistSiteNoFac(templateType,_data);
     case templateTypes.excelDistSiteFac:
-      return new ExcelDistSiteFac(templateType,_data);
+      //return new ExcelDistSiteFac(templateType,_data);
     case templateTypes.excelDistOnly:
       return new ExcelDistOnly(templateType,_data);
     case templateTypes.excelSiteLocation:
@@ -42,13 +41,14 @@ module.exports = function (fastify, opts, next) {
     url: '/generateExcel',
     schema: schema,
     handler: async (request, reply) => {
+
       const _data = request.body.data;
+      //console.log(_data)
       const templateType = _data.reportType;
-      console.log('creating builder for ',templateType)
       const excelBuilder = createBuilder(templateType,_data);
-      console.log('builder created')
+
       await excelBuilder.init();
-      console.log('builder initialized')
+
       if(excelBuilder === -1){
           console.log(`Invalid report selection method: ${templateType}`);
           reply.send({

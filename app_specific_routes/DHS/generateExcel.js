@@ -4,19 +4,23 @@ const fs = require("fs-extra");
 const { type } = require('os');
 
 const { templateTypes } = require('./excel_helpers/templateNameKeys');
-const ExcelDistSiteNoFac = require('./excel_helpers/ExcelDistSiteNoFac');
-const ExcelDistSiteFac = require('./excel_helpers/ExcelDistSiteFac');
+//const ExcelDistSiteNoFac = require('./excel_helpers/ExcelDistSiteNoFac');
+//const ExcelDistSiteFac = require('./excel_helpers/ExcelDistSiteFac');
 const ExcelDistOnly = require('./excel_helpers/ExcelDistOnly');
 const ExcelSiteLocation = require('./excel_helpers/ExcelSiteLocation');
 
 function createBuilder(templateType,_data){
   switch(templateType){
+    //12/18/2024
+    //FORCE DISTRICT-ONLY TEMPLATE FOR *ANY* DISTRICT REPORT:
+    //This should change later if we decide we definitely only need the two templates
     case templateTypes.excelDistSiteNoFac:
       //return new ExcelDistSiteNoFac(templateType,_data);
     case templateTypes.excelDistSiteFac:
       //return new ExcelDistSiteFac(templateType,_data);
     case templateTypes.excelDistOnly:
-      return new ExcelDistOnly(templateType,_data);
+      return new ExcelDistOnly(templateTypes.excelDistOnly,_data);
+      //return new ExcelDistOnly(templateType,_data);
     case templateTypes.excelSiteLocation:
       return new ExcelSiteLocation(templateType,_data);
     default:

@@ -9,7 +9,7 @@ module.exports = function(worksheet,_data, _type){
       sheltersInDistrict.forEach(shelter => {
         worksheet.insertRow(8, [
           _data.processedDistricts[_data.type]?.name ? _data.processedDistricts[_data.type].name : '',
-          shelter.facility_name,
+          shelter.facility_cd,
           shelter.address,
           shelter.facility_type,
           `${shelter.designated_units_beds_number} beds`

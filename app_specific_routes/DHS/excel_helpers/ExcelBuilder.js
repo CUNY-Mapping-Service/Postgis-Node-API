@@ -37,7 +37,7 @@ module.exports = class ExcelBuilder{
 
     async writeFile(){
         const _date = new Date();
-        const filename = `${this.templateType}_NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth() + 1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
+        const filename = `NYCDHS_SiteLocationData_${_date.getFullYear()}-${+_date.getMonth() + 1}-${_date.getDate()}-${_date.getHours()}-${_date.getMinutes()}-${_date.getSeconds()}.xlsx`
         const outputFilename = `${process.env.EXCEL_OUTPUT}\\${filename}`
         try {
             await this.doc.xlsx.writeFile(outputFilename);

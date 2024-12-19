@@ -47,7 +47,7 @@ module.exports = function (fastify, opts, next) {
     handler: async (request, reply) => {
 
       const _data = request.body.data;
-      //console.log(_data)
+      console.log(_data)
       const templateType = _data.reportType;
       const excelBuilder = createBuilder(templateType,_data);
 

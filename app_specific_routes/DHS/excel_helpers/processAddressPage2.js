@@ -20,7 +20,7 @@ const boroughName = boroughCodesToNames[_data?.processedPropertyData?.propertyDe
 
     if (facs && typeof facs !== 'undefined' && facs.length && facs.length > 0) {
       for(let f=facs.length-1;f>=0;f--){
-        worksheet.insertRow(8, [
+        worksheet.insertRow(9, [
           f + 1,
           facs[f].facname || '',
           facs[f].address,
@@ -33,7 +33,7 @@ const boroughName = boroughCodesToNames[_data?.processedPropertyData?.propertyDe
 
     if (shelters && typeof shelters !== 'undefined' && shelters.length && shelters.length > 0) {
       shelters.forEach(shelter => {
-        worksheet.insertRow(8, [
+        worksheet.insertRow(9, [
           shelter.facility_cd,
           shelter.facility_name,
           shelter.address,

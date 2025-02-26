@@ -10,7 +10,7 @@ const schema = {
 }
 
 const url = `/reset-cache`;
- const cacheManager = require("../tileCacheManager");
+ const cacheManager = require("../utils");
 module.exports = function (fastify, opts, next) {
 
     fastify.route({

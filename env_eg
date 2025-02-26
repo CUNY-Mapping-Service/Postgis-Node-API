@@ -1,0 +1,12 @@
+TITLE=[title of project eg. DHS]
+URL_PATH=[path of api eg. "/DHS/api/"]
+PUBLIC_HOST=[host name eg. "www.urbanresearchmaps.org"]
+SERVER_DB=[Postgres IP or network name]/[database name]
+USER_PASSWORD=postgres://[user with read only access]:[password for user to db]
+CACHE_FOLDER=[tilecache folder eg. "titlecache"] 
+PORT=[port the API will use eg. 8080] 
+LOG=[Should logging be done? eg.TRUE]
+#EXCEL_OUTPUT="C:\APIs\Postgis-Node-API\public\dhs_excel" example of arbitrary values that can be used in app specific routes
+MAX_TILE_CACHE_SIZE=[Size of tilecache in memory eg. 250] 
+SERVER_PASSWORD_REQUIRED=[Is a password needed for ANY request? eg.'TRUE']
+PASS_HASH=[Hashed password eg: $2b$10$tEivgMvzpm6UwmAPDnyBJueq4iEwJmDeYGkGg575CFLPwuIu0IN.u]

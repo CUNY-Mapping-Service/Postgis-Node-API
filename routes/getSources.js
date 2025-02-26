@@ -1,9 +1,5 @@
 const _args = process.argv.slice(2);
-const deployPath = _args[0] || '.';
-const fs = require("fs-extra");
-const config = require('../config')
 const url = `/get-sources`;
-const os = process.env.OS || 'WIN';
 
 const schema = {
     description: 'Get sources from all tables and views that have geom column',

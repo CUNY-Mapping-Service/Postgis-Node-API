@@ -70,7 +70,8 @@ if(process.env.APP_SPECIFIC_ROUTES){
   })
 }
 
-if(process.env.SERVER_PASSWORD_REQUIRED){
+if(process.env.SERVER_PASSWORD_REQUIRED === 'TRUE'){
+  console.log('server password required');
   fastify.addHook('preHandler', async (request, reply, done) => {
     const apiKey = request.headers['x-api-key'];
     const correctApiKey = utils.authenticate(apiKey);

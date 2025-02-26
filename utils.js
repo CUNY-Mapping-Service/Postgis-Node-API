@@ -5,7 +5,7 @@ const saltRounds = 10;
 let hashedPassword = process.env.PASS_HASH;
 const cliPWArray =  process.argv.filter(a=>a.includes('-PW'));
 const cliPassword = cliPWArray.length === 0 ? null: cliPWArray[0].replace('-PW=','');
-const bToMb = 1000000;
+//const bToMb = 1000000;
 //const MAX_MEGABYTE_SIZE = (process.env.MAX_TILE_CACHE_SIZE || 500) * bToMb;//mb times 1,000,000 = bytes
 const memCache = {}
 

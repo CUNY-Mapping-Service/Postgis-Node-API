@@ -80,7 +80,7 @@ map.on('load', function() {
     id: 'dirt-mvt',
     source: {
       type: 'vector',
-      tiles: ['http://localhost:3000/v1/mvt/voter_precinct/{z}/{x}/{y}'],
+      tiles: ['http://localhost:3000/v2/mvt/voter_precinct/{z}/{x}/{y}'],
       maxzoom: 14,
       minzoom: 5
     },
@@ -98,7 +98,7 @@ map.on('load', function() {
     type: 'circle',
     source: {
       type: 'geojson',
-      data: 'http://localhost:3000/v1/geojson/voter_polling_location'
+      data: 'http://localhost:3000/v2/geojson/voter_polling_location'
     },
     paint: {
       'circle-radius': 2,

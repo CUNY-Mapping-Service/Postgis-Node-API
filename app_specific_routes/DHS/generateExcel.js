@@ -101,4 +101,4 @@ module.exports = function (fastify, opts, next) {
 }
 
 
-module.exports.autoPrefix = '/v1'
+module.exports.autoPrefix = '/v2'

@@ -4,12 +4,12 @@ const fastify = require('fastify')();
 
 const _args = process.argv.slice(2);
 const deployPath = _args[0] || '';
-const utils = require("./utils");
-
-
-console.log('deploy folder: ',deployPath);
 
 require('dotenv').config({path:`${deployPath}.env`});
+
+const utils = require("./utils");
+
+console.log('deploy folder: ',deployPath);
 
 config.swagger.basePath = config.swagger.basePath.replace('$title$', process.env.URL_PATH)
 config.swagger.info.title = config.swagger.info.title.replace('$title$', process.env.TITLE)
@@ -45,7 +45,10 @@ fastify.register(
 )
 
 // CORS
-fastify.register(require('@fastify/cors'))
+fastify.register(require('@fastify/cors'),{
+  origin: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : ['*'],
+  methods: ['GET', 'POST']
+})
 
 // swagger
 fastify.register(require('@fastify/swagger'), {
@@ -65,26 +68,28 @@ fastify.register(require('@fastify/autoload'), {
 
 if(process.env.APP_SPECIFIC_ROUTES){
   fastify.register(require('@fastify/autoload'), {
-    dir: path.join(__dirname, `app_specific_routes/${process.env.APP_SPECIFIC_ROUTES}`),
+    dir: path.join(__dirname, `app_specific_routes/${process.env.APP_SPECIFIC_ROUTES || ''}`),
     maxDepth: 0 //No subfolders
   })
 }
 
-if(process.env.SERVER_PASSWORD_REQUIRED === 'TRUE'){
-  console.log('server password required');
-  fastify.addHook('preHandler', async (request, reply, done) => {
-    const apiKey = request.headers['x-api-key'];
-    const correctApiKey = utils.authenticate(apiKey);
+const protected_routes = process.env.PROTECTED_ROUTES ? process.env.PROTECTED_ROUTES.split(',') : [];
 
-    if (!correctApiKey) {
+fastify.addHook('preHandler', async (request, reply) => {
+
+  if(protected_routes.includes('*') || protected_routes.includes(request.url)){
+
+    const apiKey = request.headers['x-api-key'];
+    const correctApiKey = await utils.authenticate(apiKey);
+
+    if (!correctApiKey || correctApiKey === false) {
         reply.code(401).send('Authorization required');
     } else {
         console.log('Authorization successful');
     }
+  }
+});
 
-    done();
-  });
-}
 // Launch server
 fastify.listen({port:+process.env.PORT || 80, host:config.host || '0.0.0.0'}, function (err, address) {
   if (err) {

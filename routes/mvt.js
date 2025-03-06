@@ -4,7 +4,7 @@
 
 //const fastFolderSizeSync = require('fast-folder-size/sync')
 // const fastFolderSize = require('fast-folder-size');
-const cacheManager = require("../tileCacheManager");
+const cacheManager = require("../utils");
 // create route
 module.exports = function (fastify, opts, next) {
 
@@ -358,4 +358,4 @@ module.exports = function (fastify, opts, next) {
   next()
 }
 
-module.exports.autoPrefix = '/v1'
+module.exports.autoPrefix = '/v2'

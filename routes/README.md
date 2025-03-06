@@ -132,7 +132,7 @@ module.exports = function(fastify, opts, next) {
   next()
 }
 
-module.exports.autoPrefix = '/v1'
+module.exports.autoPrefix = '/v2'
 ```
 
 Fastify's [route documentation](https://www.fastify.io/docs/latest/Routes/) is excellent if anything here looks confusing. Depending on the route you're building, you may want to customize the reply based on your results. This example from the `mvt` route sends a `204` status code if the result is empty, and sets `application/x-protobuf` as the content type.
@@ -152,9 +152,9 @@ if (err) {
 Route versioning is handled by the final line in the file.
 
 ```javascript
-module.exports.autoPrefix = '/v1'
+module.exports.autoPrefix = '/v2'
 ```
 
-This value is added to the route as a prefix, i.e. `http://localhost:3000/v1/list_layers`. Using a prefix allows for easy versioning if a route is modified by incrementing the number. If a `v1` and `v2` exist for the same route, they will both be documented.
+This value is added to the route as a prefix, i.e. `http://localhost:3000/v2/list_layers`. Using a prefix allows for easy versioning if a route is modified by incrementing the number. If a `v1` and `v2` exist for the same route, they will both be documented.
 
 If you create a new route version and wish to discourage the use of the old route, you can add `hide: true` to the old route's schema and it will no longer appear in the Swagger documentation.

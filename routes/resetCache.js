@@ -17,18 +17,6 @@ module.exports = function (fastify, opts, next) {
         method: 'GET',
         url: url,
         schema: schema,
-        preHandler: (request, reply, done) => {
-            const apiKey = request.headers['x-api-key'];
-            const correctApiKey = cacheManager.authenticate(apiKey);
-        
-            if (!correctApiKey) {
-                reply.code(401).send('Authorization required');
-            } else {
-                console.log('Authorization successful');
-            }
-        
-            done();
-        },
         handler: async function (request, reply) {
            
             cacheManager.clearPctOfCache(100);

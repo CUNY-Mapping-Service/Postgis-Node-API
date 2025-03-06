@@ -1,7 +1,7 @@
 
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
+const fs = require('fs');
 let hashedPassword = process.env.PASS_HASH;
 const cliPWArray =  process.argv.filter(a=>a.includes('-PW'));
 const cliPassword = cliPWArray.length === 0 ? null: cliPWArray[0].replace('-PW=','');
@@ -34,7 +34,8 @@ if(cliPassword){
 }
 
   async function authenticate(_password){
-   return await bcrypt.compare(_password,hashedPassword);
+   
+   return await bcrypt.compare(_password || '',hashedPassword);
   }
 
   function addTile(_key, _mvt){
